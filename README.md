@@ -345,4 +345,4 @@ graph TD
 5. Create a Pull Request
 
 ## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed to netstratum
