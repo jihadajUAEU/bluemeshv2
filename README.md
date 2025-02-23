@@ -16,8 +16,11 @@ A modular, scalable platform for enterprise workflow automation using AI agents.
 graph TD
     A[Frontend Layer] --> B[API Gateway Kong 3.9.0]
     B --> C[Backend Services]
+    B --> K[Keycloak 26+]
+    K --> C
     C --> D[AI Agent Layer]
     C --> E[Data Layer]
+    C --> I[Integration Layer]
     D --> F[CrewAI Orchestration]
     E --> G[PostgreSQL 17.0 + pgvector]
     E --> H[Redis 7.4]
@@ -25,6 +28,28 @@ graph TD
     J --> C
     J --> D
     J --> E
+    J --> I
+
+    subgraph Security Layer
+        K --> Auth[Authentication]
+        K --> SSO[Single Sign-On]
+        K --> RBAC[Role-Based Access]
+        K --> Token[Token Management]
+    end
+
+    subgraph Integration Layer
+        I --> I1[Data Ingestion]
+        I --> I2[Data Export]
+        I --> I3[Protocol Adapters]
+        I1 --> I4[CRM Systems]
+        I1 --> I5[External DBs]
+        I1 --> I6[Third-party APIs]
+        I2 --> I7[Transform]
+        I2 --> I8[Validate]
+        I3 --> I9[REST/GraphQL]
+        I3 --> I10[JDBC/ODBC]
+        I3 --> I11[Message Queues]
+    end
 ```
 
 ## Data Architecture
@@ -145,7 +170,70 @@ graph TD
      - Real-time features
      - Caching layer
 
-4. **Dapr 1.14 Building Blocks**
+4. **Integration Layer**
+   - Data Ingestion and Export
+     - CRM Systems (Salesforce, Dynamics 365, HubSpot)
+     - Database Connectors (Oracle, MySQL, PostgreSQL, MongoDB)
+     - Third-party APIs (RESTful, GraphQL)
+     - File Systems (S3, SFTP, Local)
+   - Protocol Adapters
+     - REST/GraphQL Gateway
+     - JDBC/ODBC Connections
+     - Message Queue Integration (Kafka, RabbitMQ)
+     - SOAP/XML Services
+   - Data Processing
+     - Schema Validation
+     - Data Transformation
+     - Format Conversion
+     - Error Handling
+   - Integration Features
+     - Connection Pooling
+     - Rate Limiting
+     - Circuit Breaking
+     - Retry Mechanisms
+   - Security
+     - API Key Management
+     - OAuth Integration
+     - Data Encryption
+     - Audit Logging
+
+```mermaid
+graph TD
+    A[Integration Layer] --> B[Data Ingestion]
+    A --> C[Data Export]
+    A --> D[Protocol Adapters]
+
+    B --> E[CRM Systems]
+    B --> F[External DBs]
+    B --> G[Third-party APIs]
+    B --> H[File Systems]
+
+    C --> I[Data Transform]
+    C --> J[Data Validation]
+    C --> K[Data Export]
+    C --> L[Error Handling]
+
+    D --> M[REST/GraphQL]
+    D --> N[JDBC/ODBC]
+    D --> O[Message Queues]
+    D --> P[SOAP/XML]
+
+    subgraph Security
+        S1[API Keys]
+        S2[OAuth]
+        S3[Encryption]
+        S4[Audit Logs]
+    end
+
+    subgraph Features
+        F1[Connection Pool]
+        F2[Rate Limiting]
+        F3[Circuit Breaker]
+        F4[Retry Logic]
+    end
+```
+
+5. **Dapr 1.14 Building Blocks**
    - State Management: Redis-backed state store
    - Pub/Sub Messaging: Redis pub/sub component
    - Service Invocation: Dapr-to-Dapr communication
@@ -191,7 +279,9 @@ sequenceDiagram
     participant U as User/Browser
     participant F as Frontend Layer
     participant K as Kong API Gateway
+    participant KC as Keycloak 26+
     participant B as Backend Services
+    participant I as Integration Layer
     participant A as AI Agent Layer
     participant D as Data Layer
     participant R as Redis Cache
@@ -201,10 +291,12 @@ sequenceDiagram
     F->>K: 2. API Request
     
     rect rgba(0, 150, 255, 0.3)
-        note over K,B: Authentication & Routing
-        K->>B: 3. Route to Service
-        B->>Dp: 4. Validate Session
-        Dp->>R: 5. Check Cache
+        note over K,KC: Authentication Flow
+        K->>KC: 3. Authenticate Request
+        KC->>KC: 4. Validate Credentials
+        KC-->>K: 5. Issue JWT Token
+        K->>B: 6. Route with Token
+        B->>KC: 7. Verify Token
     end
     
     rect rgba(255, 165, 0, 0.3)
@@ -226,9 +318,19 @@ sequenceDiagram
         note over D,F: Data Operations
         D->>R: 13. Cache Results
         R->>B: 14. Return Data
-        B->>K: 15. Format Response
-        K->>F: 16. Send Response
-        F->>U: 17. Update UI
+        I-->D: 15. External Data Sync
+        I-->B: 16. Integration Events
+        B->>K: 17. Format Response
+        K->>F: 18. Send Response
+        F->>U: 19. Update UI
+    end
+
+    rect rgba(128, 0, 128, 0.3)
+        note over I,B: Integration Operations
+        B->>I: 20. Integration Request
+        I->>I: 21. Protocol Adaptation
+        I->>I: 22. Data Transform
+        I-->>B: 23. External System Response
     end
 ```
 
@@ -271,6 +373,7 @@ graph TD
 - Python 3.12.2
 - Node.js 22.x
 - Dapr CLI 1.14 (for local development)
+- Keycloak 26+ for authentication and authorization
 
 ### Environment Setup
 
@@ -291,10 +394,41 @@ export POSTGRES_DB=workflow_automation
 export REDIS_PASSWORD=redispassword
 export REDIS_PORT=6379
 
+# Keycloak settings
+export KEYCLOAK_ADMIN=admin
+export KEYCLOAK_ADMIN_PASSWORD=admin
+export KEYCLOAK_URL=http://localhost:8080
+export KEYCLOAK_REALM=workflow-platform
+export KEYCLOAK_CLIENT_ID=workflow-client
+export KEYCLOAK_CLIENT_SECRET=your-client-secret
+
 # Copy and configure AI agents environment
 cd platform/ai_agents
 cp .env.example .env
 # Edit .env with your OpenAI API key and other configurations
+```
+
+3. Configure Keycloak:
+```bash
+# Start Keycloak container
+docker run -d \
+  --name keycloak \
+  -p 8080:8080 \
+  -e KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN} \
+  -e KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD} \
+  quay.io/keycloak/keycloak:26.0 \
+  start-dev
+
+# Configure Keycloak
+- Access admin console at http://localhost:8080
+- Create new realm: workflow-platform
+- Create client: workflow-client
+- Configure client settings:
+  * Access Type: confidential
+  * Valid Redirect URIs: http://localhost:3001/*
+  * Web Origins: http://localhost:3001
+- Create roles: admin, user, agent
+- Configure user federation (optional)
 ```
 
 3. Start the development environment:
@@ -308,6 +442,7 @@ docker-compose up -d
    - AI Agents API: http://localhost:9000
    - Kong Admin API: http://localhost:8001
    - Konga Dashboard: http://localhost:1337
+   - Keycloak Admin: http://localhost:8080
    - Grafana Dashboard: http://localhost:3000 (admin/admin)
    - Prometheus: http://localhost:9090
    - PostgreSQL: localhost:5433

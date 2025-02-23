@@ -12,12 +12,20 @@ graph TD
     A[Infrastructure Setup] --> B[Docker Environment]
     A --> C[Database Layer]
     A --> D[Monitoring Stack]
-    B --> E[Docker 25.0.2]
-    B --> F[Docker Compose 2.33.0]
-    C --> G[PostgreSQL 17.0 + pgvector]
-    C --> H[Redis 7.4]
-    D --> I[Prometheus]
-    D --> J[Grafana]
+    A --> E[Integration Layer]
+    
+    B --> F[Docker 25.0.2]
+    B --> G[Docker Compose 2.33.0]
+    
+    C --> H[PostgreSQL 17.0 + pgvector]
+    C --> I[Redis 7.4]
+    
+    D --> J[Prometheus]
+    D --> K[Grafana]
+    
+    E --> L[CRM Systems]
+    E --> M[External DBs]
+    E --> N[API Gateways]
 ```
 
 ### Tasks and Deliverables
@@ -26,56 +34,77 @@ graph TD
    - [ ] Configure development tools and IDEs
    - [ ] Set up version control and branching strategy
 
-2. Database Layer Configuration
+2. Integration Layer Setup
+   - [ ] Configure CRM connectors:
+     * Salesforce integration
+     * Dynamics 365 setup
+     * HubSpot integration
+   - [ ] Database connectors:
+     * Oracle client setup
+     * MySQL connector
+     * MongoDB driver
+   - [ ] Protocol adapters:
+     * REST/GraphQL gateway
+     * JDBC/ODBC bridges
+     * Message queue setup
+   - [ ] File system connectors:
+     * S3 configuration
+     * SFTP server setup
+
+3. Database Layer Configuration
    - [ ] PostgreSQL 17.0 setup with pgvector extension
    - [ ] Configure vector similarity search
    - [ ] Redis 7.4 configuration
    - [ ] Database backup and recovery procedures
    - [ ] Vector indexing optimization
 
-3. Monitoring Infrastructure
+4. Monitoring Infrastructure
    - [ ] Prometheus configuration
    - [ ] Grafana dashboard setup
    - [ ] Alert rules configuration
    - [ ] Logging pipeline setup
 
-4. Network Configuration
+5. Network Configuration
    - [ ] Configure container networking
    - [ ] Set up service discovery
    - [ ] Configure load balancing
    - [ ] Implement network security policies
 
-## Stage 2: Dapr Integration (Week 2)
+## Stage 2: Authentication & Dapr Integration (Week 2)
 
 ```mermaid
 graph TD
-    A[Dapr 1.14 Setup] --> B[Component Configuration]
-    B --> C[State Store]
-    B --> D[Pub/Sub]
-    B --> E[Secrets]
-    A --> F[Service Configuration]
-    F --> G[Sidecar Setup]
-    F --> H[Service Communication]
+    A[Service Integration] --> B[Keycloak 26+]
+    A --> C[Dapr 1.14]
+    
+    B --> D[Authentication]
+    B --> E[Authorization]
+    B --> F[User Federation]
+    
+    C --> G[State Store]
+    C --> H[Pub/Sub]
+    C --> I[Service Invocation]
 ```
 
 ### Tasks and Deliverables
-1. Dapr Installation and Setup
+1. Keycloak Setup
+   - [ ] Install and configure Keycloak 26+
+   - [ ] Set up realm and clients
+   - [ ] Configure user roles and permissions
+   - [ ] Implement SSO integration
+
+2. Dapr Integration
    - [ ] Install Dapr CLI 1.14
    - [ ] Initialize Dapr runtime
-   - [ ] Configure Dapr components
-   - [ ] Set up development workflows
-
-2. Component Configuration
    - [ ] Configure Redis state store
    - [ ] Set up pub/sub messaging
    - [ ] Implement secrets management
-   - [ ] Configure service invocation
 
-3. Integration Testing
-   - [ ] Test state management
-   - [ ] Verify pub/sub functionality
-   - [ ] Validate secrets handling
-   - [ ] Test service-to-service communication
+3. Security Testing
+   - [ ] Test authentication flows
+   - [ ] Verify authorization rules
+   - [ ] Validate token management
+   - [ ] Test service-to-service auth
 
 ## Stage 3: Backend Development (Weeks 3-4)
 
@@ -93,31 +122,10 @@ graph TD
     E --> I[Analysis Agent]
     E --> J[Implementation Agent]
     E --> K[QA Agent]
-    
-    C --> L[REST Endpoints]
-    C --> M[WebSocket Routes]
-    C --> N[Middleware]
-    
-    D --> O[YAML Config]
-    D --> P[Agent States]
-    D --> Q[Workflow Rules]
-    
-    F --> R[Task Queue]
-    F --> S[State Machine]
-    
-    N --> T[Authentication]
-    N --> U[Rate Limiting]
-    N --> V[Logging]
 ```
 
 ### Tasks and Deliverables
-1. Python Environment Setup
-   - [ ] Set up Python 3.12.2
-   - [ ] Configure virtual environments
-   - [ ] Install dependencies
-   - [ ] Set up development tools
-
-2. FastAPI Implementation
+1. FastAPI Implementation
    - [ ] Set up FastAPI 0.115.8 structure
    - [ ] Implement REST endpoints
    - [ ] Configure WebSocket routes
@@ -126,7 +134,7 @@ graph TD
    - [ ] Configure rate limiting
    - [ ] Implement logging system
 
-3. CrewAI Integration
+2. CrewAI Integration
    - [ ] Set up CrewAI 0.102.0 core
    - [ ] Configure agent types:
      - Research Agent
@@ -138,16 +146,63 @@ graph TD
    - [ ] Configure state machine
    - [ ] Create YAML-based configuration system
 
-4. Testing Framework
+3. Testing Framework
    - [ ] Set up pytest
    - [ ] Write unit tests for each agent type
    - [ ] Test orchestration workflows
    - [ ] Validate state management
    - [ ] Test real-time communication
-   - [ ] Implement integration tests
-   - [ ] Configure CI pipeline
 
-## Stage 4: Frontend Development (Weeks 5-6)
+## Stage 4: Integration Layer Implementation (Weeks 4-5)
+
+```mermaid
+graph TD
+    A[Integration Layer] --> B[Data Ingestion]
+    A --> C[Data Export]
+    A --> D[Protocol Adapters]
+
+    B --> E[CRM Systems]
+    B --> F[External DBs]
+    B --> G[Third-party APIs]
+    B --> H[File Systems]
+
+    C --> I[Data Transform]
+    C --> J[Data Validation]
+    C --> K[Data Export]
+    C --> L[Error Handling]
+
+    D --> M[REST/GraphQL]
+    D --> N[JDBC/ODBC]
+    D --> O[Message Queues]
+    D --> P[SOAP/XML]
+```
+
+### Tasks and Deliverables
+1. Data Ingestion Setup
+   - [ ] Implement CRM connectors
+   - [ ] Configure database adapters
+   - [ ] Set up API integration endpoints
+   - [ ] Configure file system connectors
+
+2. Data Export Implementation
+   - [ ] Create data transformation pipelines
+   - [ ] Implement schema validation
+   - [ ] Set up error handling and logging
+   - [ ] Configure data export formats
+
+3. Protocol Adapter Configuration
+   - [ ] Set up REST/GraphQL gateway
+   - [ ] Configure JDBC/ODBC connections
+   - [ ] Implement message queue integrations
+   - [ ] Set up SOAP/XML services
+
+4. Security & Monitoring
+   - [ ] Implement API key management
+   - [ ] Configure OAuth integration
+   - [ ] Set up data encryption
+   - [ ] Configure audit logging
+
+## Stage 5: Frontend Development (Weeks 6-7)
 
 ```mermaid
 graph TD
@@ -158,148 +213,93 @@ graph TD
     B --> E[Workflow Builder]
     B --> F[Agent Interface]
     B --> G[Dashboard]
-    B --> H[Settings]
     
-    C --> I[Redux Store]
-    C --> J[Dapr State]
+    C --> H[Redux Store]
+    C --> I[Dapr State]
     
-    D --> K[Socket.IO 4.7.4]
-    D --> L[REST Client]
-    D --> M[WebSocket]
-    
-    E --> N[No-Code Editor]
-    E --> O[Component Library]
-    
-    F --> P[Real-time Chat]
-    F --> Q[Response Stream]
-    
-    K --> R[Real-time Updates]
-    L --> S[API Requests]
-    M --> T[Stream Handling]
+    D --> J[Socket.IO 4.7.4]
+    D --> K[REST Client]
 ```
 
 ### Tasks and Deliverables
-1. Environment Setup
-   - [ ] Install Node.js 22.x
-   - [ ] Configure npm/yarn
-   - [ ] Set up React 19.x and Redux
-   - [ ] Set up build tools and optimization
-
-2. UI Development
+1. UI Development
    - [ ] Create component library
    - [ ] Build workflow editor components
    - [ ] Implement agent interface
    - [ ] Create dashboard components
    - [ ] Add settings interface
-   - [ ] Implement responsive design
-   - [ ] Create and test themes
 
-3. State Management
+2. State Management
    - [ ] Set up Redux store
    - [ ] Implement Dapr state integration
    - [ ] Configure real-time state updates
    - [ ] Add state persistence
 
-4. Real-time Features
-   - [ ] Set up Socket.IO 4.7.4
-   - [ ] Implement WebSocket connections
-   - [ ] Add real-time chat features
-   - [ ] Configure response streaming
-   - [ ] Implement error handling
-   - [ ] Test real-time capabilities
+3. Integration Features
+   - [ ] Implement Keycloak authentication
+   - [ ] Add external system connectors
+   - [ ] Set up real-time updates
+   - [ ] Configure WebSocket streams
 
-## Stage 5: API Gateway & Security (Week 7)
+## Stage 6: Testing & Quality Assurance (Week 8)
 
 ```mermaid
 graph TD
-    A[API Gateway Setup] --> B[Kong 3.9.0]
-    A --> C[Security Layer]
-    B --> D[Route Configuration]
-    C --> E[Authentication]
-    C --> F[Authorization]
-    C --> G[Rate Limiting]
+    A[Testing] --> B[Unit Tests]
+    A --> C[Integration Tests]
+    A --> D[E2E Tests]
+    A --> E[Performance Tests]
 ```
 
 ### Tasks and Deliverables
-1. Kong Setup
-   - [ ] Install Kong 3.9.0
-   - [ ] Configure routes
-   - [ ] Set up services
-   - [ ] Implement plugins
+1. Test Implementation
+   - [ ] Write comprehensive test suites
+   - [ ] Set up CI/CD pipelines
+   - [ ] Implement automated testing
+   - [ ] Create test documentation
 
-2. Security Implementation
-   - [ ] Set up authentication
-   - [ ] Configure authorization
-   - [ ] Implement rate limiting
-   - [ ] Add API key management
+2. Integration Testing
+   - [ ] Test external system integrations
+   - [ ] Validate data flows
+   - [ ] Verify security measures
+   - [ ] Test failure scenarios
 
-3. Security Testing
-   - [ ] Perform security audit
-   - [ ] Test rate limiting
-   - [ ] Validate authentication
-   - [ ] Check authorization
-
-## Stage 6: Integration & Testing (Week 8)
-
-```mermaid
-graph TD
-    A[Integration] --> B[Component Testing]
-    A --> C[E2E Testing]
-    A --> D[Performance Testing]
-    B --> E[Unit Tests]
-    C --> F[Integration Tests]
-    D --> G[Load Tests]
-```
-
-### Tasks and Deliverables
-1. Integration Testing
-   - [ ] Component integration tests
-   - [ ] End-to-end testing
-   - [ ] System integration tests
-   - [ ] API testing
-
-2. Performance Testing
-   - [ ] Load testing
-   - [ ] Stress testing
-   - [ ] Performance benchmarking
-   - [ ] Optimization
-
-3. Documentation
-   - [ ] API documentation
-   - [ ] System architecture docs
-   - [ ] Deployment guides
-   - [ ] User manuals
+3. Performance Testing
+   - [ ] Conduct load testing
+   - [ ] Measure response times
+   - [ ] Test scalability
+   - [ ] Optimize bottlenecks
 
 ## Stage 7: Deployment & Monitoring (Week 9)
 
 ```mermaid
 graph TD
-    A[Deployment] --> B[Production Setup]
+    A[Production] --> B[Environment Setup]
     A --> C[Monitoring]
-    B --> D[Environment Config]
-    C --> E[Prometheus Setup]
-    C --> F[Grafana Dashboards]
-    C --> G[Alert Configuration]
+    A --> D[Documentation]
+    
+    B --> E[Configuration]
+    B --> F[Security]
+    
+    C --> G[Metrics]
+    C --> H[Alerting]
+    
+    D --> I[User Guides]
+    D --> J[API Docs]
 ```
 
 ### Tasks and Deliverables
-1. Production Setup
+1. Deployment Setup
    - [ ] Configure production environment
-   - [ ] Set up CI/CD pipelines
-   - [ ] Configure auto-scaling
+   - [ ] Set up auto-scaling
    - [ ] Implement backup strategies
+   - [ ] Configure monitoring
 
-2. Monitoring Setup
-   - [ ] Configure Prometheus metrics
-   - [ ] Set up Grafana dashboards
-   - [ ] Implement alerting
-   - [ ] Set up log aggregation
-
-3. Final Steps
-   - [ ] System documentation
-   - [ ] Team training
-   - [ ] Handover documentation
-   - [ ] Go-live checklist
+2. Documentation
+   - [ ] Create user documentation
+   - [ ] Write API documentation
+   - [ ] Prepare deployment guides
+   - [ ] Document integration points
 
 ## Dependencies and Requirements
 
@@ -314,6 +314,16 @@ graph TD
 - CrewAI 0.102.0
 - Pydantic 2.10.0
 
+### Integration
+- Salesforce API Client
+- Dynamics 365 SDK
+- HubSpot Client
+- Oracle Client
+- MySQL Connector
+- MongoDB Driver
+- Apache Kafka
+- RabbitMQ Client
+
 ### Frontend
 - Node.js 22.x
 - React 19.x
@@ -325,6 +335,7 @@ graph TD
 
 ### API Gateway & Security
 - Kong 3.9.0
+- Keycloak 26+
 - JWT authentication
 - OAuth2 support
 
@@ -337,33 +348,39 @@ graph TD
 
 1. Technical Risks
    - Version compatibility issues
+   - Integration system failures
    - Performance bottlenecks
-   - Integration challenges
+   - Security vulnerabilities
 
 2. Mitigation Strategies
    - Comprehensive testing
    - Regular backups
-   - Fallback plans
+   - Failover systems
+   - Security audits
    - Documentation
 
 3. Contingency Plans
    - Version rollback procedures
-   - Disaster recovery plans
+   - Backup integration paths
    - Emergency response protocols
+   - Incident management procedures
 
 ## Success Criteria
 
 1. Performance Metrics
    - Response times < 200ms
    - 99.9% uptime
-   - Successful CI/CD pipeline
+   - Successful integration tests
+   - Passing security audits
 
 2. Quality Metrics
    - Test coverage > 80%
    - Zero critical security issues
    - All documentation complete
+   - Integration validation
 
 3. Business Metrics
    - System scalability verified
    - All features functional
+   - External system connectivity
    - User acceptance criteria met
