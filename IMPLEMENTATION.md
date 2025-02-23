@@ -1,6 +1,10 @@
 # Implementation Plan for AI-Powered Workflow Automation Platform
 
-[Previous sections remain the same...]
+## License
+
+This software is proprietary and confidential. Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited.
+
+[Previous sections up to Dependencies remain the same...]
 
 ## Integration-AI Layer Communication
 

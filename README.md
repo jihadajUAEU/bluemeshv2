@@ -1,20 +1,15 @@
-AI-Powered Workflow Automation Platform
+# AI-Powered Workflow Automation Platform
 A modular, scalable platform for enterprise workflow automation using AI agents. Built with the latest stable SDKs, libraries, and permissive licensing (MIT/Apache 2.0).
 
-Key Features
-No-code workflow builder with ReactFlow
+## Key Features
+- No-code workflow builder with ReactFlow
+- Real-time AI response streaming
+- Multi-LLM orchestration
+- Enterprise-grade security & compliance
+- Distributed application runtime with Dapr
 
-Real-time AI response streaming
-
-Multi-LLM orchestration
-
-Enterprise-grade security & compliance
-
-Distributed application runtime with Dapr
-
-Architecture Overview
-mermaid
-Copy
+## Architecture Overview
+```mermaid
 graph TD
     A[Frontend Layer] --> B[API Gateway Kong 3.9.0]
     B --> C[Backend Services]
@@ -52,9 +47,10 @@ graph TD
         I3 --> I10[JDBC/ODBC]
         I3 --> I11[Message Queues]
     end
-Data Architecture
-mermaid
-Copy
+```
+
+## Data Architecture
+```mermaid
 graph TD
     A[Data Layer] --> B[PostgreSQL 17.0]
     A --> C[Redis 7.4]
@@ -78,22 +74,18 @@ graph TD
     C --> P[State Management]
     C --> Q[Pub/Sub]
     C --> R[Caching]
-Components
-1. Frontend/UI Layer
-Web Interface: React 19.x-based chatbot interface (Port 3001)
+```
 
-Node.js 22.x runtime
+## Components
+### 1. Frontend/UI Layer
+- Web Interface: React 19.x-based chatbot interface (Port 3001)
+- Node.js 22.x runtime
+- No-Code Builder: ReactFlow 12.4.3 integration
+- API Gateway: Kong 3.9.0 with Konga admin UI
+- Realtime: Socket.IO 4.7.4 token streaming
+- Dapr JS SDK for state management and pub/sub
 
-No-Code Builder: ReactFlow 12.4.3 integration
-
-API Gateway: Kong 3.9.0 with Konga admin UI
-
-Realtime: Socket.IO 4.7.4 token streaming
-
-Dapr JS SDK for state management and pub/sub
-
-mermaid
-Copy
+```mermaid
 graph TD
     A[Frontend Layer] --> B[React 19.x Components]
     A --> C[State Management]
@@ -120,19 +112,16 @@ graph TD
     K --> R[Real-time Updates]
     L --> S[API Requests]
     M --> T[Stream Handling]
-2. AI Agent Layer
-Framework: CrewAI 0.102.0
+```
 
-LLMs: GPT-4, OpenAI, or custom models
+### 2. AI Agent Layer
+- Framework: CrewAI 0.102.0
+- LLMs: GPT-4, OpenAI, or custom models
+- Python 3.12.2 with FastAPI 0.115.8 backend
+- Dynamic LLM switching with YAML configuration
+- Dapr 1.14 Python SDK for service communication
 
-Python 3.12.2 with FastAPI 0.115.8 backend
-
-Dynamic LLM switching with YAML configuration
-
-Dapr 1.14 Python SDK for service communication
-
-mermaid
-Copy
+```mermaid
 graph TD
     A[AI Agent Layer] --> B[CrewAI 0.102.0]
     A --> C[FastAPI Backend]
@@ -161,86 +150,53 @@ graph TD
     N --> T[Authentication]
     N --> U[Rate Limiting]
     N --> V[Logging]
-3. Data Layer
-PostgreSQL 17.0 with pgvector extension
+```
 
-Core relational data
+### 3. Data Layer
+- PostgreSQL 17.0 with pgvector extension
+  - Core relational data
+  - Vector embeddings storage
+  - JSONB document storage
+  - Full-text search capabilities
+- Redis 7.4 for:
+  - Dapr state store
+  - Pub/sub messaging
+  - Session management
+  - Real-time features
+  - Caching layer
 
-Vector embeddings storage
+### 4. Integration Layer
+- Data Ingestion and Export
+  - CRM Systems (Salesforce, Dynamics 365, HubSpot)
+  - Database Connectors (Oracle, MySQL, PostgreSQL, MongoDB)
+  - Third-party APIs (RESTful, GraphQL)
+  - File Systems (S3, SFTP, Local)
+- Protocol Adapters
+  - REST/GraphQL Gateway
+  - JDBC/ODBC Connections
+  - Message Queue Integration (Kafka, RabbitMQ)
+  - SOAP/XML Services
+- Data Processing
+  - Schema Validation
+  - Data Transformation
+  - Format Conversion
+  - Error Handling
+- Security
+  - API Key Management
+  - OAuth Integration
+  - Data Encryption
+  - Audit Logging
 
-JSONB document storage
+### 5. Dapr 1.14 Building Blocks
+- State Management: Redis-backed state store
+- Pub/Sub Messaging: Redis pub/sub component
+- Service Invocation: Dapr-to-Dapr communication
+- Secrets Management: Local file-based secret store
+- Built-in observability and resilience
+- Distributed tracing and metrics
 
-Full-text search capabilities
-
-Redis 7.4 for:
-
-Dapr state store
-
-Pub/sub messaging
-
-Session management
-
-Real-time features
-
-Caching layer
-
-4. Integration Layer
-Data Ingestion and Export
-
-CRM Systems (Salesforce, Dynamics 365, HubSpot)
-
-Database Connectors (Oracle, MySQL, PostgreSQL, MongoDB)
-
-Third-party APIs (RESTful, GraphQL)
-
-File Systems (S3, SFTP, Local)
-
-Protocol Adapters
-
-REST/GraphQL Gateway
-
-JDBC/ODBC Connections
-
-Message Queue Integration (Kafka, RabbitMQ)
-
-SOAP/XML Services
-
-Data Processing
-
-Schema Validation
-
-Data Transformation
-
-Format Conversion
-
-Error Handling
-
-Security
-
-API Key Management
-
-OAuth Integration
-
-Data Encryption
-
-Audit Logging
-
-5. Dapr 1.14 Building Blocks
-State Management: Redis-backed state store
-
-Pub/Sub Messaging: Redis pub/sub component
-
-Service Invocation: Dapr-to-Dapr communication
-
-Secrets Management: Local file-based secret store
-
-Built-in observability and resilience
-
-Distributed tracing and metrics
-
-Application Flow
-mermaid
-Copy
+## Application Flow
+```mermaid
 sequenceDiagram
     participant U as User/Browser
     participant F as Frontend Layer
@@ -298,31 +254,27 @@ sequenceDiagram
         I->>I: 22. Data Transform
         I-->>B: 23. External System Response
     end
-Getting Started
-Prerequisites
-Docker 25.0.2
+```
 
-Docker Compose 2.33.0
+## Getting Started
 
-Python 3.12.2
+### Prerequisites
+- Docker 25.0.2
+- Docker Compose 2.33.0
+- Python 3.12.2
+- Node.js 22.x
+- Dapr CLI 1.14 (for local development)
+- Keycloak 26+ for authentication and authorization
 
-Node.js 22.x
-
-Dapr CLI 1.14 (for local development)
-
-Keycloak 26+ for authentication and authorization
-
-Environment Setup
-Clone the repository:
-
-bash
-Copy
+### Environment Setup
+1. Clone the repository:
+```bash
 git clone https://github.com/your-org/workflow-platform.git
 cd workflow-platform
-Configure environment variables:
+```
 
-bash
-Copy
+2. Configure environment variables:
+```bash
 # Database settings
 export POSTGRES_USER=dbuser
 export POSTGRES_PASSWORD=dbpassword
@@ -344,35 +296,27 @@ export KEYCLOAK_CLIENT_SECRET=your-client-secret
 cd platform/ai_agents
 cp .env.example .env
 # Edit .env with your OpenAI API key and other configurations
-Start the development environment:
+```
 
-bash
-Copy
+3. Start the development environment:
+```bash
 cd ../
 docker-compose up -d
-Access the services:
+```
 
-Frontend UI: http://localhost:3001
+4. Access the services:
+- Frontend UI: http://localhost:3001
+- AI Agents API: http://localhost:9000
+- Kong Admin API: http://localhost:8001
+- Konga Dashboard: http://localhost:1337
+- Keycloak Admin: http://localhost:8080
+- Grafana Dashboard: http://localhost:3000 (admin/admin)
+- Prometheus: http://localhost:9090
+- PostgreSQL: localhost:5433
+- Redis: localhost:6379
 
-AI Agents API: http://localhost:9000
-
-Kong Admin API: http://localhost:8001
-
-Konga Dashboard: http://localhost:1337
-
-Keycloak Admin: http://localhost:8080
-
-Grafana Dashboard: http://localhost:3000 (admin/admin)
-
-Prometheus: http://localhost:9090
-
-PostgreSQL: localhost:5433
-
-Redis: localhost:6379
-
-Monitoring & Observability
-mermaid
-Copy
+## Monitoring & Observability
+```mermaid
 graph TD
     A[OpenTelemetry] --> B[Metrics]
     A --> C[Tracing]
@@ -391,18 +335,14 @@ graph TD
     F --> L[Token Usage]
     F --> M[Error Rates]
     F --> N[Cost Analysis]
-Contributing
-Fork the repository
+```
 
-Create a feature branch
+## Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-Commit your changes
-
-Push to the branch
-
-Create a Pull Request
-
-License
+## License
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-This version removes redundant sections, consolidates similar content, and ensures the document is concise and easy to navigate.
