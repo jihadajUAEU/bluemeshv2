@@ -30,7 +30,6 @@ graph TD
    - [ ] PostgreSQL 17.0 setup with pgvector extension
    - [ ] Configure vector similarity search
    - [ ] Redis 7.4 configuration
-   - [ ] MinIO object storage configuration
    - [ ] Database backup and recovery procedures
    - [ ] Vector indexing optimization
 

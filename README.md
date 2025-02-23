@@ -184,6 +184,60 @@ graph TD
     H --> U[Secret Rotation]
 ```
 
+## Application Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User/Browser
+    participant F as Frontend Layer
+    participant K as Kong API Gateway
+    participant B as Backend Services
+    participant A as AI Agent Layer
+    participant D as Data Layer
+    participant R as Redis Cache
+    participant Dp as Dapr Sidecar
+
+    U->>F: 1. User Interaction
+    F->>K: 2. API Request
+    
+    rect rgba(0, 150, 255, 0.3)
+        note over K,B: Authentication & Routing
+        K->>B: 3. Route to Service
+        B->>Dp: 4. Validate Session
+        Dp->>R: 5. Check Cache
+    end
+    
+    rect rgba(255, 165, 0, 0.3)
+        note over B,A: Workflow Processing
+        B->>A: 6. Trigger Workflow
+        A->>A: 7. Agent Orchestration
+        A->>D: 8. Store Vector Data
+        A->>R: 9. Update State
+    end
+    
+    rect rgba(255, 105, 180, 0.3)
+        note over A,F: Real-time Updates
+        A-->>Dp: 10. Publish Events
+        Dp-->>F: 11. Stream Updates
+        F-->>U: 12. Live Updates
+    end
+    
+    rect rgba(50, 205, 50, 0.3)
+        note over D,F: Data Operations
+        D->>R: 13. Cache Results
+        R->>B: 14. Return Data
+        B->>K: 15. Format Response
+        K->>F: 16. Send Response
+        F->>U: 17. Update UI
+    end
+```
+
+The application flow demonstrates the interaction between different layers:
+1. **Authentication & Routing (Blue)**: Initial request handling and session validation
+2. **Workflow Processing (Orange)**: AI agent orchestration and task processing
+3. **Real-time Updates (Pink)**: Event streaming and live updates
+4. **Data Operations (Green)**: Data storage, caching, and response handling
+
 ## Data Schema
 
 ```mermaid
