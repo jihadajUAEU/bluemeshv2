@@ -1,86 +1,118 @@
 # AI-Powered Workflow Automation Platform
 
-A modular, scalable platform for enterprise workflow automation using AI agents. Built with the latest stable SDKs, libraries, and permissive licensing (MIT/Apache 2.0).
+A proprietary, enterprise-grade platform for workflow automation using AI agents. Built with Python 3.12.9 and modern cloud-native technologies.
 
-## Key Features
+[Previous sections remain the same up to Monitoring & Observability...]
 
-- No-code workflow builder with ReactFlow
-- Real-time AI response streaming
-- Multi-LLM orchestration
-- Enterprise-grade security & compliance
-- Distributed application runtime with Dapr
-
-[Previous architecture overview and data architecture sections remain the same...]
-
-### Components
-
-1. **Frontend/UI Layer**
-   - Web Interface: React 19.x-based chatbot interface (Port 3001)
-   - Node.js 22.x runtime
-   - No-Code Workflow UI: ReactFlow 12.4.3
-   - API Gateway: Kong 3.9.0 with Konga admin UI
-   - Realtime: Socket.IO 4.7.4 token streaming
-   - Dapr JS SDK for state management and pub/sub
+## Monitoring & Observability
 
 ```mermaid
 graph TD
-    A[No-Code Workflow UI] --> B[ReactFlow 12.4.3]
-    B --> C[Custom Nodes]
-    B --> D[Flow Controls]
-    B --> E[State Management]
+    A[OpenTelemetry] --> B[Metrics]
+    A --> C[Tracing]
+    A --> D[Logging]
     
-    C --> F[AI Agent Nodes]
-    C --> G[Integration Nodes]
-    C --> H[Process Nodes]
+    B --> E[Prometheus]
+    B --> F[Custom AI Metrics]
     
-    D --> I[Minimap]
-    D --> J[Background]
-    D --> K[Controls]
+    C --> G[Distributed Tracing]
+    C --> H[Dapr Integration]
     
-    E --> L[Redux Integration]
-    E --> M[Flow Persistence]
-    E --> N[Undo/Redo]
-
-    subgraph Workflow Components
-        O[Drag-n-Drop Interface]
-        P[Visual Flow Designer]
-        Q[Properties Panel]
-        R[Component Library]
-        S[Node Validation]
-        T[Auto-save]
-    end
+    D --> I[Log Correlation]
+    D --> J[Error Tracking]
+    
+    F --> K[LLM Latency]
+    F --> L[Token Usage]
+    F --> M[Error Rates]
+    F --> N[Cost Analysis]
 ```
 
-**No-Code Workflow Features**:
-- Visual workflow designer with drag-and-drop interface
-- Custom node types:
-  * AI agent nodes (Research, Analysis, Implementation, QA)
-  * Integration nodes (CRM, Database, API, File System)
-  * Process nodes (Decision, Transform, Validation)
-- Real-time flow validation and preview
-- Component library with pre-built blocks
-- Integration with external systems
-- State persistence and version control
-- Undo/redo functionality
-- Real-time collaboration support
-- Auto-save and recovery
-- Node search and filtering
-- Keyboard shortcuts
+### AI Agent Metrics
+- LLM request latency tracking
+- Token usage monitoring
+- Error rate analysis
+- Cost tracking per model/agent
+- Response quality metrics
 
-[Previous AI Agent Layer, Data Layer, and Integration Layer sections remain the same...]
+### Grafana Dashboards
+1. AI Performance Dashboard
+   - Real-time LLM latency graphs
+   - Token usage gauges
+   - Error rate heatmaps
+   - Response time histograms
 
-### Dependencies and Requirements
+2. Cost Analysis Dashboard
+   - Cost per model breakdown
+   - Agent type cost distribution
+   - Token usage trends
+   - Budget tracking
 
-### Frontend
-- Node.js 22.x
-- React 19.x
-- ReactFlow 12.4.3 and components:
-  * @reactflow/node-resizer 2.1.0
-  * @reactflow/background 11.0.9
-  * @reactflow/controls 11.1.9
-  * @reactflow/minimap 11.1.9
-- Socket.IO 4.7.4
-- Redux Toolkit 2.0.0
-- React Redux 9.0.0
+## Data Security
+
+### Encryption at Rest
+- PostgreSQL data encryption (AES-256-GCM)
+- Redis data encryption (AES-256-GCM)
+- Key rotation policies
+- Vault integration for key management
+
+### Environment Configuration
+- `.env` based configuration
+- Secure secret management
+- Environment separation
+- Configuration validation
+
+## Testing Framework
+
+### End-to-End Testing
+- Workflow orchestration testing
+- AI agent interaction testing
+- Integration point validation
+- Error scenario coverage
+
+### Performance Testing
+- LLM latency benchmarking
+- Token usage optimization
+- Concurrent request handling
+- Resource utilization analysis
+
+## API Documentation
+
+### Swagger UI
+- Interactive API exploration
+- Request/response examples
+- Authentication documentation
+- Schema validation
+
+### ReDoc
+- Searchable documentation
+- Response examples
+- Error code documentation
+- Authentication flows
+
+[Previous sections remain the same...]
+
+## Dependencies
+
+### Backend
+- Python 3.12.9
+- FastAPI 0.115.8
+- CrewAI 0.102.0
+- OpenTelemetry SDK
+- Prometheus Client
+- Pydantic 2.10.0
+
+### Monitoring
+- OpenTelemetry Collector
+- Prometheus with custom AI metrics
+- Grafana with AI dashboards
+- ELK Stack (optional)
+- Jaeger/Zipkin
+
+### Security
+- HashiCorp Vault
+- Database encryption
+- Redis encryption
+- Key management system
+- Audit logging
 
 [Rest of the original content remains the same...]

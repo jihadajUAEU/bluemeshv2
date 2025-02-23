@@ -1,236 +1,195 @@
 # Implementation Plan for AI-Powered Workflow Automation Platform
 
-[Previous sections remain the same up to Stage 4...]
+## License
 
-## Stage 4: No-Code Workflow UI Implementation (Weeks 4-5)
+This software is proprietary and confidential. Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited.
 
-```mermaid
-graph TD
-    A[ReactFlow Implementation] --> B[Core Components]
-    A --> C[Custom Nodes]
-    A --> D[State Management]
-    A --> E[Integration]
+[Previous sections up to Dependencies remain the same...]
 
-    B --> F[Flow Canvas]
-    B --> G[Controls]
-    B --> H[Minimap]
-    
-    C --> I[AI Agent Nodes]
-    C --> J[Integration Nodes]
-    C --> K[Process Nodes]
-    
-    D --> L[Redux Store]
-    D --> M[Flow State]
-    D --> N[Undo/Redo]
-    
-    E --> O[Backend API]
-    E --> P[Real-time Updates]
-    E --> Q[Data Persistence]
+## Data Security & Encryption
 
-    subgraph Features
-        R[Auto-save]
-        S[Node Search]
-        T[Keyboard Shortcuts]
-        U[Validation]
-    end
+### Database Encryption
+```yaml
+postgresql:
+  encryption:
+    provider: "vault"
+    key_rotation: 30  # days
+    algorithm: "AES-256-GCM"
+    at_rest: true
+    in_transit: true
+
+redis:
+  encryption:
+    provider: "vault"
+    key_rotation: 30  # days
+    algorithm: "AES-256-GCM"
+    at_rest: true
+    in_transit: true
 ```
 
-### Tasks and Deliverables
+## Environment Configuration
 
-1. ReactFlow Setup (Week 4, Days 1-2)
-   - [ ] Install ReactFlow 12.4.3 and dependencies:
-     ```bash
-     npm install reactflow@12.4.3
-     npm install @reactflow/node-resizer@2.1.0
-     npm install @reactflow/background@11.0.9
-     npm install @reactflow/controls@11.1.9
-     npm install @reactflow/minimap@11.1.9
-     ```
-   - [ ] Configure flow canvas:
-     * Set up workspace dimensions
-     * Configure zoom levels
-     * Implement snap-to-grid
-     * Set up node boundaries
-   - [ ] Set up basic controls:
-     * Zoom controls
-     * Fit view
-     * Lock mechanism
-   - [ ] Implement minimap:
-     * Configure size and position
-     * Style node representations
-     * Add mask area
-   - [ ] Configure background:
-     * Grid pattern
-     * Dots vs lines option
-     * Custom styling
+```ini
+# .env.example
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=workflow_automation
+DB_USER=admin
+DB_PASSWORD=secure_password
+DB_ENCRYPTION_KEY=vault_key
 
-2. Custom Node Development (Week 4, Days 3-5)
-   - [ ] Create AI agent node types:
-     * Research agent node with configuration
-     * Analysis agent node with data inputs
-     * Implementation agent node with actions
-     * QA agent node with validation rules
-   - [ ] Build integration nodes:
-     * CRM connector nodes with credentials
-     * Database operation nodes with queries
-     * API endpoint nodes with methods
-     * File system nodes with paths
-   - [ ] Process flow nodes:
-     * Decision nodes with conditions
-     * Transform nodes with mappings
-     * Validation nodes with rules
-     * Error handling nodes with recovery
-   - [ ] Node features:
-     * Custom styling
-     * Input/output ports
-     * Validation indicators
-     * Loading states
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=secure_password
+REDIS_ENCRYPTION_KEY=vault_key
 
-3. State Management (Week 4, Day 6 - Week 5, Day 2)
-   - [ ] Set up Redux flow state:
-     * Node positions
-     * Edge connections
-     * Selection state
-     * Workflow metadata
-   - [ ] Implement undo/redo system:
-     * Action history
-     * State snapshots
-     * Batch operations
-   - [ ] Configure state persistence:
-     * Auto-save
-     * Local storage backup
-     * Server synchronization
-   - [ ] Add flow validation:
-     * Connection rules
-     * Required fields
-     * Cycle detection
-     * Type checking
-   - [ ] Implement error handling:
-     * Validation errors
-     * Runtime errors
-     * Recovery options
+# AI Services
+OPENAI_API_KEY=your_key
+MODEL_ENDPOINT=https://api.openai.com/v1
+MAX_TOKENS=4096
+TEMPERATURE=0.7
 
-4. Properties Panel (Week 5, Days 3-4)
-   - [ ] Create node configuration panel:
-     * Dynamic form generation
-     * Type-specific inputs
-     * Validation rules
-   - [ ] Build form components:
-     * Input fields
-     * Select dropdowns
-     * Credential inputs
-     * Code editors
-   - [ ] Add validation rules:
-     * Required fields
-     * Type checking
-     * Custom validation
-   - [ ] Implement data mapping:
-     * Input/output mapping
-     * Transform functions
-     * Variable references
-   - [ ] Style customization:
-     * Node colors
-     * Border styles
-     * Icon selection
-     * Label positioning
+# Monitoring
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+OTEL_SERVICE_NAME=workflow-platform
+PROMETHEUS_PORT=9090
+```
 
-5. Integration Features (Week 5, Days 5-7)
-   - [ ] Backend API integration:
-     * Save/load workflows
-     * Execute workflows
-     * Fetch node configurations
-   - [ ] Real-time updates:
-     * Collaboration cursors
-     * Live node updates
-     * Status indicators
-   - [ ] Flow export/import:
-     * JSON format
-     * Version compatibility
-     * Validation checks
-   - [ ] Version control:
-     * Workflow versions
-     * Changelogs
-     * Rollback capability
-   - [ ] Collaboration features:
-     * Multi-user editing
-     * Change notifications
-     * Conflict resolution
+## OpenTelemetry Integration
 
-6. Testing Strategy
-   - [ ] Unit tests:
-     * Node components
-     * State management
-     * Validation rules
-   - [ ] Integration tests:
-     * Flow operations
-     * State persistence
-     * API integration
-   - [ ] End-to-end tests:
-     * Workflow creation
-     * Execution flows
-     * Error scenarios
-   - [ ] Performance testing:
-     * Large workflow handling
-     * Real-time updates
-     * State management
-   - [ ] User acceptance testing:
-     * Usability tests
-     * Feature validation
-     * Edge cases
+```yaml
+opentelemetry:
+  service_name: "workflow-platform"
+  sampler:
+    type: "parentbased_traceidratio"
+    rate: 1.0
+  
+  processors:
+    batch:
+      max_queue_size: 2048
+      schedule_delay_millis: 5000
+      
+  exporters:
+    otlp:
+      endpoint: "http://otel-collector:4317"
+      protocol: "grpc"
+```
 
-### Updated Dependencies and Requirements
+## AI Agent Metrics
 
-Frontend Dependencies:
+### Custom Prometheus Metrics
+```python
+# AI Agent metrics
+ai_request_duration = Histogram(
+    "ai_request_duration_seconds",
+    "Time spent processing AI requests",
+    ["model", "agent_type"]
+)
+
+ai_token_usage = Counter(
+    "ai_token_usage_total",
+    "Total tokens used by AI models",
+    ["model", "agent_type"]
+)
+
+ai_error_counter = Counter(
+    "ai_errors_total",
+    "Total AI processing errors",
+    ["model", "agent_type", "error_type"]
+)
+
+ai_request_cost = Counter(
+    "ai_request_cost_dollars",
+    "Total cost of AI requests",
+    ["model", "agent_type"]
+)
+```
+
+### Grafana Dashboards
+
+1. AI Performance Dashboard
 ```json
 {
-  "dependencies": {
-    "react": "^19.0.0",
-    "reactflow": "^12.4.3",
-    "@reactflow/node-resizer": "^2.1.0",
-    "@reactflow/background": "^11.0.9",
-    "@reactflow/controls": "^11.1.9",
-    "@reactflow/minimap": "^11.1.9",
-    "socket.io-client": "^4.7.4",
-    "@reduxjs/toolkit": "^2.0.0",
-    "react-redux": "^9.0.0",
-    "@monaco-editor/react": "^4.6.0",
-    "lodash": "^4.17.21",
-    "yup": "^1.3.3"
-  },
-  "devDependencies": {
-    "@testing-library/react": "^14.1.2",
-    "@testing-library/user-event": "^14.5.1",
-    "jest": "^29.7.0",
-    "cypress": "^13.6.2"
+  "dashboard": {
+    "panels": [
+      {
+        "title": "LLM Latency",
+        "type": "graph",
+        "metrics": ["rate(ai_request_duration_seconds_sum[5m])"]
+      },
+      {
+        "title": "Token Usage",
+        "type": "gauge",
+        "metrics": ["sum(ai_token_usage_total)"]
+      },
+      {
+        "title": "Error Rates",
+        "type": "heatmap",
+        "metrics": ["rate(ai_errors_total[5m])"]
+      }
+    ]
   }
 }
 ```
 
-[Rest of the implementation plan remains the same...]
+2. Cost Analysis Dashboard
+```json
+{
+  "dashboard": {
+    "panels": [
+      {
+        "title": "Total Cost per Model",
+        "type": "graph",
+        "metrics": ["sum(ai_request_cost_dollars) by (model)"]
+      },
+      {
+        "title": "Cost per Agent Type",
+        "type": "pie",
+        "metrics": ["sum(ai_request_cost_dollars) by (agent_type)"]
+      }
+    ]
+  }
+}
+```
 
-## Risk Mitigation
+## End-to-End Testing
 
-Add to Technical Risks:
-- ReactFlow performance with large workflows
-- Real-time collaboration conflicts
-- Browser compatibility issues
-- State management complexity
+### Workflow Testing Framework
+```python
+class WorkflowTestCase:
+    async def setup_workflow(self):
+        # Setup test workflow
+        pass
 
-Add to Mitigation Strategies:
-- Workflow size limits
-- Conflict resolution mechanisms
-- Browser testing matrix
-- State optimization techniques
+    async def test_workflow_execution(self):
+        # Test full workflow execution
+        pass
 
-## Success Criteria
+    async def test_ai_agent_interaction(self):
+        # Test AI agent interactions
+        pass
 
-Add to Performance Metrics:
-- Workflow render time < 500ms
-- Real-time update latency < 100ms
-- Undo/redo operations < 50ms
+    async def test_error_handling(self):
+        # Test error scenarios
+        pass
+```
 
-Add to Quality Metrics:
-- UI component test coverage > 90%
-- Zero console errors
-- All keyboard shortcuts functional
-- Cross-browser compatibility
+### Performance Testing
+```python
+class AIPerformanceTest:
+    async def test_llm_latency(self):
+        # Test LLM response times
+        pass
+
+    async def test_token_optimization(self):
+        # Test token usage efficiency
+        pass
+
+    async def test_concurrent_requests(self):
+        # Test multiple simultaneous requests
+        pass
+```
+
+[Previous sections remain the same...]
