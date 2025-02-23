@@ -14,55 +14,209 @@ A modular, scalable platform for enterprise workflow automation using AI agents.
 
 ```mermaid
 graph TD
-    A[Frontend Layer] --> B[API Gateway]
-    B --> C[AI Agent Layer]
-    B --> D[Data Layer]
-    C --> D
-    C --> E[Integration Layer]
-    D --> E
-    F[Dapr Runtime] --> A
-    F --> C
-    G[Redis StateStore/PubSub] --> F
+    A[Frontend Layer] --> B[API Gateway Kong 3.9.0]
+    B --> C[Backend Services]
+    C --> D[AI Agent Layer]
+    C --> E[Data Layer]
+    D --> F[CrewAI Orchestration]
+    E --> G[PostgreSQL 17.0 + pgvector]
+    E --> H[Redis 7.4]
+    J[Dapr Sidecar 1.14] --> A
+    J --> C
+    J --> D
+    J --> E
+```
+
+## Data Architecture
+
+```mermaid
+graph TD
+    A[Data Layer] --> B[PostgreSQL 17.0]
+    A --> C[Redis 7.4]
+    
+    B --> D[Core Data]
+    B --> E[Vector Storage]
+    B --> F[Document Storage]
+    
+    D --> G[User Management]
+    D --> H[Workflow Data]
+    D --> I[Agent Data]
+    
+    E --> J[pgvector Extension]
+    J --> K[Embeddings]
+    J --> L[Similarity Search]
+    
+    F --> M[JSONB Storage]
+    M --> N[Configurations]
+    M --> O[State History]
+    
+    C --> P[State Management]
+    C --> Q[Pub/Sub]
+    C --> R[Caching]
 ```
 
 ### Components
 
 1. **Frontend/UI Layer**
-   - Web Interface: React-based chatbot interface (Port 3001)
+   - Web Interface: React 19.x-based chatbot interface (Port 3001)
+   - Node.js 22.x runtime
    - No-Code Builder: Appsmith integration
-   - API Gateway: Kong 3.6+ with Konga admin UI
-   - Realtime: Socket.IO token streaming
+   - API Gateway: Kong 3.9.0 with Konga admin UI
+   - Realtime: Socket.IO 4.7.4 token streaming
    - Dapr JS SDK for state management and pub/sub
 
+```mermaid
+graph TD
+    A[Frontend Layer] --> B[React 19.x Components]
+    A --> C[State Management]
+    A --> D[UI Services]
+    
+    B --> E[Workflow Builder]
+    B --> F[Agent Interface]
+    B --> G[Dashboard]
+    B --> H[Settings]
+    
+    C --> I[Redux Store]
+    C --> J[Dapr State]
+    
+    D --> K[Socket.IO 4.7.4]
+    D --> L[REST Client]
+    D --> M[WebSocket]
+    
+    E --> N[No-Code Editor]
+    E --> O[Component Library]
+    
+    F --> P[Real-time Chat]
+    F --> Q[Response Stream]
+    
+    K --> R[Real-time Updates]
+    L --> S[API Requests]
+    M --> T[Stream Handling]
+```
+
 2. **AI Agent Layer**
-   - Framework: CrewAI
+   - Framework: CrewAI 0.102.0
    - LLMs: GPT-4, OpenAI, or custom models
-   - Python FastAPI backend
-   - Dynamic LLM switching
-   - Dapr Python SDK for service communication
+   - Python 3.12.2 with FastAPI 0.115.8 backend
+   - Dynamic LLM switching with YAML configuration
+   - Dapr 1.14 Python SDK for service communication
+
+```mermaid
+graph TD
+    A[AI Agent Layer] --> B[CrewAI 0.102.0]
+    A --> C[FastAPI Backend]
+    A --> D[Agent Config]
+    
+    B --> E[Agent Types]
+    B --> F[Orchestration]
+    B --> G[Task Management]
+    
+    E --> H[Research Agent]
+    E --> I[Analysis Agent]
+    E --> J[Implementation Agent]
+    E --> K[QA Agent]
+    
+    C --> L[REST Endpoints]
+    C --> M[WebSocket Routes]
+    C --> N[Middleware]
+    
+    D --> O[YAML Config]
+    D --> P[Agent States]
+    D --> Q[Workflow Rules]
+    
+    F --> R[Task Queue]
+    F --> S[State Machine]
+    
+    N --> T[Authentication]
+    N --> U[Rate Limiting]
+    N --> V[Logging]
+```
 
 3. **Data Layer**
-   - PostgreSQL 16+ with pgvector (Port 5433)
-   - Milvus vector database (Port 19530)
-   - Redis for Dapr state store and pub/sub (Port 6380)
-   - MinIO object storage
-   - Etcd for Milvus metadata
+   - PostgreSQL 17.0 with pgvector extension
+     - Core relational data
+     - Vector embeddings storage
+     - JSONB document storage
+     - Full-text search capabilities
+   - Redis 7.4 for
+     - Dapr state store
+     - Pub/sub messaging
+     - Session management
+     - Real-time features
+     - Caching layer
 
-4. **Dapr Building Blocks**
+4. **Dapr 1.14 Building Blocks**
    - State Management: Redis-backed state store
    - Pub/Sub Messaging: Redis pub/sub component
    - Service Invocation: Dapr-to-Dapr communication
    - Secrets Management: Local file-based secret store
    - Built-in observability and resilience
+   - Distributed tracing and metrics
+
+```mermaid
+graph TD
+    A[Dapr 1.14 Runtime] --> B[Building Blocks]
+    A --> C[Components]
+    A --> D[APIs]
+    
+    B --> E[State Management]
+    B --> F[Pub/Sub]
+    B --> G[Service Invocation]
+    B --> H[Secrets]
+    
+    C --> I[Redis Store]
+    C --> J[Redis Pub/Sub]
+    C --> K[Local Secrets]
+    
+    D --> L[HTTP API]
+    D --> M[gRPC API]
+    
+    E --> N[Actor State]
+    E --> O[Workflow State]
+    
+    F --> P[Event Handling]
+    F --> Q[Message Routing]
+    
+    G --> R[Service Discovery]
+    G --> S[Load Balancing]
+    
+    H --> T[Key Management]
+    H --> U[Secret Rotation]
+```
+
+## Data Schema
+
+```mermaid
+graph TD
+    A[PostgreSQL Schema] --> B[Users & Auth]
+    A --> C[Workflows]
+    A --> D[Agents]
+    A --> E[Vector Data]
+    
+    B --> F[users]
+    B --> G[roles]
+    B --> H[permissions]
+    
+    C --> I[workflows]
+    C --> J[workflow_versions]
+    C --> K[execution_history]
+    
+    D --> L[agent_configurations]
+    D --> M[agent_states]
+    
+    E --> N[embeddings]
+    E --> O[vector_indexes]
+```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Docker and Docker Compose
-- Python 3.11+
-- Node.js 18+
-- Dapr CLI (for local development)
+- Docker 25.0.2
+- Docker Compose 2.33.0
+- Python 3.12.2
+- Node.js 22.x
+- Dapr CLI 1.14 (for local development)
 
 ### Environment Setup
 
@@ -74,13 +228,14 @@ cd workflow-platform
 
 2. Configure environment variables:
 ```bash
-# Core database settings
+# Database settings
 export POSTGRES_USER=dbuser
 export POSTGRES_PASSWORD=dbpassword
 export POSTGRES_DB=workflow_automation
 
 # Redis settings
 export REDIS_PASSWORD=redispassword
+export REDIS_PORT=6379
 
 # Copy and configure AI agents environment
 cd platform/ai_agents
@@ -101,9 +256,8 @@ docker-compose up -d
    - Konga Dashboard: http://localhost:1337
    - Grafana Dashboard: http://localhost:3000 (admin/admin)
    - Prometheus: http://localhost:9090
-   - Milvus: localhost:19530
    - PostgreSQL: localhost:5433
-   - Redis: localhost:6380
+   - Redis: localhost:6379
 
 ### Local Development with Dapr
 
@@ -137,11 +291,10 @@ dapr run --app-id workflow-ui --app-port 3000 --dapr-http-port 3501 npm start
 ### AI Agents Layer
 
 The AI agents layer is built with Python and uses the following key libraries:
-- CrewAI for agent orchestration
-- LangChain for LLM integration
-- FastAPI for API endpoints with Swagger UI documentation
-- Pydantic for data validation
-- Dapr Python SDK for distributed application features
+- CrewAI 0.102.0 for agent orchestration and YAML-based configuration
+- FastAPI 0.115.8 for API endpoints with Swagger UI documentation
+- Pydantic 2.10.0 for data validation
+- Dapr 1.14 Python SDK for distributed application features
 
 #### API Documentation
 
