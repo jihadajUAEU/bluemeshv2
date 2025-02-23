@@ -1,169 +1,692 @@
 # Implementation Plan for AI-Powered Workflow Automation Platform
 
-## License
+## Development Setup
 
-This software is proprietary and confidential. Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited.
+### Local Development Environment
+```bash
+# Required versions
+node: 22.x
+python: 3.12.2
+docker: 25.0.2
+docker-compose: 2.33.0
+dapr: 1.14
+```
 
-[Previous sections up to Dependencies remain the same...]
+### Development Workflow
+1. **Branch Strategy**
+   - `main`: Production-ready code
+   - `develop`: Integration branch
+   - `feature/*`: New features
+   - `bugfix/*`: Bug fixes
+   - `release/*`: Release preparation
 
-## Integration-AI Layer Communication
+2. **Code Standards**
+   - ESLint + Prettier for JavaScript/TypeScript
+   - Black + isort for Python
+   - Pre-commit hooks for formatting
+   - Conventional commits format
 
-### Service Communication Architecture
+3. **Documentation**
+   - OpenAPI/Swagger for REST APIs
+   - Protocol buffers for gRPC services
+   - JSDoc for JavaScript/TypeScript
+   - Type hints for Python
+   - Architecture Decision Records (ADRs)
 
+### CI/CD Pipeline
 ```mermaid
 graph TD
-    A[Integration Layer] --> B[Service Mesh/Dapr]
-    B --> C[AI Layer]
-    
-    subgraph "Communication Methods"
-        D[gRPC Services]
-        E[REST APIs]
-        F[Message Queue]
-        G[State Store]
-    end
-    
-    subgraph "AI Layer Features"
-        H[Agent Orchestration]
-        I[Model Selection]
-        J[Task Processing]
-        K[Response Handling]
-    end
-    
-    D --> H
-    E --> I
-    F --> J
-    G --> K
+    A[Feature Branch] --> B[Automated Tests]
+    B --> C[Code Quality]
+    C --> D[Security Scan]
+    D --> E[Build Artifacts]
+    E --> F[Deploy to Dev]
+    F --> G[Integration Tests]
+    G --> H[Deploy to Staging]
+    H --> I[E2E Tests]
+    I --> J[Production Deploy]
 ```
 
-### gRPC Service Definitions
-```protobuf
-syntax = "proto3";
+## Component Implementation
 
-service AIAgentService {
-    rpc ProcessTask (TaskRequest) returns (TaskResponse);
-    rpc StreamResults (TaskRequest) returns (stream ResultUpdate);
-    rpc GetAgentStatus (AgentRequest) returns (AgentStatus);
-}
-
-message TaskRequest {
-    string task_id = 1;
-    string agent_type = 2;
-    bytes payload = 3;
-    map<string, string> metadata = 4;
-}
-
-message TaskResponse {
-    string task_id = 1;
-    string status = 2;
-    bytes result = 3;
-    repeated Error errors = 4;
-}
-```
-
-### Event-Driven Integration
-```yaml
-dapr:
-  pubsub:
-    name: ai-events
-    topics:
-      - name: task-events
-        routes:
-          - match: /ai/task/*
-            path: /process
-      - name: agent-events
-        routes:
-          - match: /ai/agent/*
-            path: /status
-
-  state:
-    name: workflow-state
-    options:
-      actorStateStore: true
-      consistency: strong
-```
-
-### Message Queue Configuration
-```yaml
-messaging:
-  rabbitmq:
-    exchanges:
-      - name: ai-tasks
-        type: direct
-        queues:
-          - name: research-tasks
-            routing_key: research
-          - name: analysis-tasks
-            routing_key: analysis
-          - name: implementation-tasks
-            routing_key: implementation
-    retry:
-      max_attempts: 3
-      initial_interval: 1000
-      multiplier: 2.0
-```
-
-### API Endpoints
-```yaml
-api:
-  ai_service:
-    base_url: /api/v1/ai
-    endpoints:
-      - path: /process
-        method: POST
-        auth: required
-        rate_limit: 100/minute
-      - path: /status
-        method: GET
-        auth: required
-        cache: 60s
-```
-
-### Integration Error Handling
+### 1. Frontend Layer
 ```typescript
-interface ErrorResponse {
-  error_code: string;
-  message: string;
-  details: Record<string, any>;
-  retry_after?: number;
-}
-
-enum ErrorCodes {
-  AGENT_UNAVAILABLE = 'AGENT_UNAVAILABLE',
-  MODEL_ERROR = 'MODEL_ERROR',
-  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
-  INVALID_REQUEST = 'INVALID_REQUEST'
-}
+// Component Structure
+src/
+  ├── components/
+  │   ├── workflow/
+  │   │   ├── Builder.tsx
+  │   │   ├── Canvas.tsx
+  │   │   └── NodeTypes.tsx
+  │   ├── agents/
+  │   │   ├── AgentCard.tsx
+  │   │   └── AgentConfig.tsx
+  │   └── common/
+  ├── services/
+  │   ├── api.ts
+  │   ├── websocket.ts
+  │   └── state.ts
+  └── utils/
 ```
 
-### State Management
+#### State Management
 ```typescript
 interface WorkflowState {
-  workflow_id: string;
-  current_stage: string;
-  ai_responses: Array<{
-    agent_type: string;
-    response: any;
-    timestamp: Date;
-  }>;
-  metadata: Record<string, any>;
+  nodes: Node[];
+  edges: Edge[];
+  agents: Agent[];
+  selectedNode: string | null;
+  running: boolean;
+}
+
+// Redux slice example
+const workflowSlice = createSlice({
+  name: 'workflow',
+  initialState,
+  reducers: {
+    addNode: (state, action) => {},
+    updateEdge: (state, action) => {},
+    setRunning: (state, action) => {}
+  }
+});
+```
+
+#### Real-time Updates
+```typescript
+class WebSocketService {
+  private socket: Socket;
+  
+  constructor() {
+    this.socket = io({
+      path: '/ws',
+      transports: ['websocket'],
+      auth: { token: getAuthToken() }
+    });
+  }
+
+  subscribeToAgentUpdates(workflowId: string) {
+    this.socket.emit('subscribe', { workflowId });
+    this.socket.on('agent:update', (data) => {
+      store.dispatch(updateAgentStatus(data));
+    });
+  }
 }
 ```
 
-### Performance Optimization
+### 2. Backend Services
+
+#### API Gateway Configuration
 ```yaml
-optimization:
-  caching:
-    enabled: true
-    ttl: 300
-    strategy: least-recently-used
-  batching:
-    enabled: true
-    max_size: 10
-    timeout: 100ms
-  connection_pooling:
-    min_size: 5
-    max_size: 20
-    idle_timeout: 60s
+# Kong configuration
+services:
+  - name: workflow-service
+    url: http://workflow-service:8000
+    routes:
+      - name: workflow-api
+        paths: ["/api/v1/workflows"]
+        strip_path: true
+    plugins:
+      - name: key-auth
+      - name: rate-limiting
+        config:
+          second: 5
+          hour: 10000
+
+  - name: ai-service
+    url: http://ai-service:9000
+    routes:
+      - name: ai-api
+        paths: ["/api/v1/ai"]
+    plugins:
+      - name: jwt
+      - name: cors
 ```
 
-[Previous sections remain the same...]
+#### Service Architecture
+```typescript
+// Service base class
+abstract class BaseService {
+  protected logger: Logger;
+  protected metrics: MetricsClient;
+  
+  abstract handleRequest(req: Request): Promise<Response>;
+  abstract handleError(error: Error): Response;
+  
+  protected async trace<T>(
+    name: string,
+    fn: () => Promise<T>
+  ): Promise<T> {
+    const span = tracer.startSpan(name);
+    try {
+      const result = await fn();
+      span.end();
+      return result;
+    } catch (error) {
+      span.setStatus(SpanStatus.ERROR);
+      span.end();
+      throw error;
+    }
+  }
+}
+```
+
+### 3. AI Agent Layer
+
+#### Agent Configuration
+```yaml
+agents:
+  research:
+    model: gpt-4
+    temperature: 0.7
+    max_tokens: 2048
+    retry_policy:
+      max_retries: 3
+      backoff: exponential
+    
+  analysis:
+    model: gpt-4
+    temperature: 0.3
+    max_tokens: 1024
+    
+  implementation:
+    model: gpt-4
+    temperature: 0.2
+    max_tokens: 4096
+    
+  qa:
+    model: gpt-3.5-turbo
+    temperature: 0.1
+    max_tokens: 1024
+```
+
+#### CrewAI Integration
+```python
+from crewai import Agent, Task, Crew
+from typing import List
+
+class ResearchAgent(Agent):
+    def __init__(self, config: dict):
+        super().__init__(
+            name="Research",
+            goal="Gather and analyze information",
+            backstory="Expert at research and data collection",
+            allow_delegation=True,
+            **config
+        )
+    
+    async def execute(self, task: Task) -> str:
+        # Implementation
+        pass
+
+class WorkflowCrew:
+    def __init__(self, agents: List[Agent]):
+        self.crew = Crew(
+            agents=agents,
+            tasks=[],
+            verbose=True
+        )
+    
+    async def process_workflow(self, workflow_data: dict):
+        # Implementation
+        pass
+```
+
+### 4. Data Layer
+
+#### Database Schema
+```sql
+-- Core tables
+CREATE TABLE workflows (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    metadata JSONB
+);
+
+CREATE TABLE workflow_nodes (
+    id UUID PRIMARY KEY,
+    workflow_id UUID REFERENCES workflows(id),
+    type VARCHAR(50) NOT NULL,
+    config JSONB,
+    position JSONB
+);
+
+CREATE TABLE workflow_edges (
+    id UUID PRIMARY KEY,
+    workflow_id UUID REFERENCES workflows(id),
+    source_id UUID REFERENCES workflow_nodes(id),
+    target_id UUID REFERENCES workflow_nodes(id),
+    config JSONB
+);
+
+-- Vector storage
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE embeddings (
+    id UUID PRIMARY KEY,
+    workflow_id UUID REFERENCES workflows(id),
+    content_type VARCHAR(50),
+    embedding vector(1536),
+    metadata JSONB
+);
+
+-- Indexes
+CREATE INDEX idx_workflow_nodes_workflow ON workflow_nodes(workflow_id);
+CREATE INDEX idx_workflow_edges_workflow ON workflow_edges(workflow_id);
+CREATE INDEX idx_embeddings_workflow ON embeddings(workflow_id);
+```
+
+#### Redis Configuration
+```yaml
+redis:
+  master:
+    persistence:
+      enabled: true
+      fsync: everysec
+    
+  replicas:
+    - persistence:
+        enabled: true
+    - persistence:
+        enabled: true
+  
+  sentinel:
+    enabled: true
+    quorum: 2
+  
+  config:
+    maxmemory: 2gb
+    maxmemory-policy: volatile-lru
+    notify-keyspace-events: "Ex"
+```
+
+### 5. Integration Layer
+
+#### Protocol Adapters
+```typescript
+interface ProtocolAdapter {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  send(data: any): Promise<void>;
+  receive(): Promise<any>;
+}
+
+class RestAdapter implements ProtocolAdapter {
+  constructor(private config: RestConfig) {}
+  
+  async connect() {
+    // Implementation
+  }
+  
+  async send(data: any) {
+    // Implementation
+  }
+}
+
+class GraphQLAdapter implements ProtocolAdapter {
+  constructor(private config: GraphQLConfig) {}
+  
+  async connect() {
+    // Implementation
+  }
+  
+  async send(data: any) {
+    // Implementation
+  }
+}
+```
+
+#### Data Transformation
+```typescript
+interface TransformationRule {
+  source: string;
+  target: string;
+  type: 'map' | 'reduce' | 'filter';
+  config: Record<string, any>;
+}
+
+class DataTransformer {
+  constructor(private rules: TransformationRule[]) {}
+  
+  transform(data: any): any {
+    return this.rules.reduce((acc, rule) => {
+      switch (rule.type) {
+        case 'map':
+          return this.applyMap(acc, rule);
+        case 'reduce':
+          return this.applyReduce(acc, rule);
+        case 'filter':
+          return this.applyFilter(acc, rule);
+        default:
+          return acc;
+      }
+    }, data);
+  }
+}
+```
+
+## Infrastructure Setup
+
+### Kubernetes Configuration
+```yaml
+# Base deployment template
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${service-name}
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    spec:
+      containers:
+        - name: ${service-name}
+          image: ${image}:${tag}
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+```
+
+### Network Policies
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-internal
+spec:
+  podSelector:
+    matchLabels:
+      app: workflow-platform
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: workflow-platform
+```
+
+## Testing Strategy
+
+### Unit Testing
+```typescript
+// Frontend component test example
+describe('WorkflowBuilder', () => {
+  it('should add new node', () => {
+    render(<WorkflowBuilder />);
+    const addButton = screen.getByText('Add Node');
+    fireEvent.click(addButton);
+    expect(screen.getByTestId('node-1')).toBeInTheDocument();
+  });
+});
+
+// Backend service test example
+describe('WorkflowService', () => {
+  it('should create workflow', async () => {
+    const service = new WorkflowService();
+    const result = await service.createWorkflow({
+      name: 'Test Workflow',
+      nodes: []
+    });
+    expect(result.id).toBeDefined();
+  });
+});
+```
+
+### Integration Testing
+```typescript
+describe('Workflow E2E', () => {
+  it('should complete workflow execution', async () => {
+    // Setup test data
+    const workflow = await createTestWorkflow();
+    
+    // Start workflow
+    const response = await api.post(`/workflows/${workflow.id}/start`);
+    expect(response.status).toBe(200);
+    
+    // Wait for completion
+    await waitForWorkflowCompletion(workflow.id);
+    
+    // Verify results
+    const result = await api.get(`/workflows/${workflow.id}`);
+    expect(result.data.status).toBe('completed');
+  });
+});
+```
+
+### Performance Testing
+```typescript
+import { check } from 'k6';
+import http from 'k6/http';
+
+export const options = {
+  stages: [
+    { duration: '1m', target: 50 },
+    { duration: '3m', target: 100 },
+    { duration: '1m', target: 0 }
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<500']
+  }
+};
+
+export default function() {
+  const res = http.get('http://workflow-platform/api/v1/health');
+  check(res, {
+    'status is 200': (r) => r.status === 200
+  });
+}
+```
+
+## Deployment
+
+### Staging Environment
+```yaml
+# Staging configuration
+environment: staging
+replicas:
+  frontend: 2
+  backend: 2
+  ai-service: 1
+resources:
+  limits:
+    cpu: 1
+    memory: 1Gi
+monitoring:
+  enabled: true
+  retention: 7d
+```
+
+### Production Environment
+```yaml
+# Production configuration
+environment: production
+replicas:
+  frontend: 3
+  backend: 3
+  ai-service: 2
+resources:
+  limits:
+    cpu: 2
+    memory: 2Gi
+monitoring:
+  enabled: true
+  retention: 30d
+backup:
+  enabled: true
+  schedule: "0 */6 * * *"
+```
+
+### Rollback Procedures
+1. Identify failure point
+2. Execute rollback command:
+   ```bash
+   kubectl rollout undo deployment/<service-name>
+   ```
+3. Verify service health
+4. Update monitoring thresholds
+5. Document incident
+
+## Monitoring & Alerting
+
+### Prometheus Rules
+```yaml
+groups:
+  - name: workflow-platform
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) 
+          / 
+          sum(rate(http_requests_total[5m])) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: High error rate detected
+          
+      - alert: SlowResponses
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+```
+
+### Grafana Dashboards
+```json
+{
+  "dashboard": {
+    "panels": [
+      {
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m])) by (service)"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (service)"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### AI Metrics
+```yaml
+custom_metrics:
+  - name: llm_request_duration
+    type: Histogram
+    help: "Duration of LLM API requests"
+    buckets: [0.1, 0.5, 1, 2, 5]
+    
+  - name: llm_token_usage
+    type: Counter
+    help: "Number of tokens used by LLM requests"
+    labels:
+      - model
+      - request_type
+      
+  - name: agent_execution_time
+    type: Histogram
+    help: "Time taken for agent task execution"
+    buckets: [1, 5, 10, 30, 60]
+```
+
+## Scaling Strategy
+
+### Horizontal Pod Autoscaling
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: workflow-service
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: workflow-service
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+```
+
+### Database Scaling
+1. **Read Replicas**
+   - PostgreSQL streaming replication
+   - PgBouncer connection pooling
+   - Read/write splitting
+
+2. **Sharding Strategy**
+   ```sql
+   -- Sharding by workflow_id
+   CREATE TABLE workflows_YYYYMM PARTITION OF workflows
+   FOR VALUES FROM ('YYYY-MM-01') TO ('YYYY-MM-01');
+   ```
+
+3. **Cache Strategy**
+   ```yaml
+   redis:
+     cluster:
+       enabled: true
+       nodes: 6
+     config:
+       maxmemory-policy: volatile-lru
+       maxmemory: "75%"
+   ```
+
+## License
+
+This project is licensed under the MIT License and Apache 2.0 License - see the LICENSE file for details.
