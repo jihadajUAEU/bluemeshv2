@@ -349,5 +349,11 @@ graph TD
 - Audit logging
 - Compliance monitoring
 
-For implementation details, see [IMPLEMENTATION.md](IMPLEMENTATION.md).
-For detailed system interaction flows, see [applicationFlow.md](applicationFlow.md).
+## Documentation Index
+- [Implementation Guide](implementation-guide.md)
+- [Application Flow](application-flow.md)
+- [Directory Structure](directory-structure.md)
+- [README](readme.md)
+
+For implementation details, see [implementation-guide.md](implementation-guide.md).
+For detailed system interaction flows, see [application-flow.md](application-flow.md).

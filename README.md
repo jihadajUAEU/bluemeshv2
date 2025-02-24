@@ -3,10 +3,11 @@
 A modular, scalable platform for enterprise workflow automation using AI agents. Built with the latest stable SDKs, libraries, and permissive licensing (MIT/Apache 2.0).
 
 ## Documentation Structure
-- **[README.md](README.md)**: Project overview and quick start guide
-- **[layers.md](layers.md)**: Detailed architecture and compliance standards
-- **[IMPLEMENTATION.md](IMPLEMENTATION.md)**: Technical implementation details
-- **[applicationFlow.md](applicationFlow.md)**: Detailed system interaction flows and processes
+- **[readme.md](readme.md)**: Project overview and quick start guide
+- **[architecture-layers.md](architecture-layers.md)**: Detailed architecture and compliance standards
+- **[implementation-guide.md](implementation-guide.md)**: Technical implementation details
+- **[application-flow.md](application-flow.md)**: Detailed system interaction flows and processes
+- **[directory-structure.md](directory-structure.md)**: Complete project structure and organization
 
 ## Key Features
 - No-code workflow builder with ReactFlow
@@ -35,7 +36,7 @@ graph TD
     end
 ```
 
-For detailed architecture, see [layers.md](layers.md).
+For detailed architecture, see [architecture-layers.md](architecture-layers.md).
 
 ## Prerequisites
 - Docker 25.0.2
@@ -100,12 +101,12 @@ docker-compose up -d
 | PostgreSQL | localhost:5433 | See env vars |
 | Redis | localhost:6379 | See env vars |
 
-For detailed setup instructions and configurations, see [IMPLEMENTATION.md](IMPLEMENTATION.md).
+For detailed setup instructions and configurations, see [implementation-guide.md](implementation-guide.md).
 
 ## Contributing
 1. Fork the repository
 2. Create a feature branch
-3. Follow coding standards (see [IMPLEMENTATION.md](IMPLEMENTATION.md))
+3. Follow coding standards (see [implementation-guide.md](implementation-guide.md))
 4. Submit pull request with comprehensive description
 5. Ensure all tests pass and documentation is updated
 

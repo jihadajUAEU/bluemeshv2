@@ -13,10 +13,13 @@
 
 ## Overview
 
-This document details the complete application flow of our enterprise SaaS platform, illustrating how different components interact across various operations. For detailed:
-- Architecture specifications, see [layers.md](layers.md)
-- Implementation details, see [IMPLEMENTATION.md](IMPLEMENTATION.md)
-- Setup instructions, see [README.md](README.md)
+This document details the complete application flow of our enterprise SaaS platform, illustrating how different components interact across various operations.
+
+## Documentation Index
+- [Architecture Layers](architecture-layers.md)
+- [Implementation Guide](implementation-guide.md)
+- [Directory Structure](directory-structure.md)
+- [README](readme.md)
 
 ## Core Flow Diagram
 
@@ -247,5 +250,5 @@ State Handling:
 4. Recovery points
 5. Cleanup procedures
 
-For detailed implementation specifics of each flow, refer to [IMPLEMENTATION.md](IMPLEMENTATION.md).
-For architecture and compliance details, see [layers.md](layers.md).
+For detailed implementation specifics of each flow, refer to [implementation-guide.md](implementation-guide.md).
+For architecture and compliance details, see [architecture-layers.md](architecture-layers.md).
