@@ -1,368 +1,352 @@
-# Enterprise SaaS Application Architecture Layers
+# Enterprise Application Architecture & Standards
 
 ## Table of Contents
-1. [Presentation Layer](#presentation-layer)
-2. [API Gateway Layer](#api-gateway-layer)
-3. [Application Services Layer](#application-services-layer)
-4. [AI/ML Layer](#aiml-layer)
-5. [Data Layer](#data-layer)
-6. [Integration Layer](#integration-layer)
-7. [Security Layer](#security-layer)
-8. [Compliance & Standards](#compliance--standards)
+1. [Architectural Layers](#architectural-layers)
+2. [Compliance & Standards](#compliance--standards)
+3. [Cross-Cutting Concerns](#cross-cutting-concerns)
 
-## Presentation Layer
+## Architectural Layers
+
+### 1. Presentation Layer
 ```mermaid
 graph TD
-    A[Frontend Layer] --> B[Public Web Interface]
-    A --> C[Admin Dashboard]
-    A --> D[Customer Portal]
-    B --> E[React 19.x Components]
-    C --> E
-    D --> E
-    E --> F[Micro-frontends Architecture]
-    F --> G[Authentication UI]
-    F --> H[Workflow Builder]
-    F --> I[Analytics Dashboard]
+    A[Frontend Layer] --> B[React 19.x Components]
+    A --> C[State Management]
+    A --> D[UI Services]
+    
+    B --> E[Workflow Builder]
+    B --> F[Agent Interface]
+    B --> G[Dashboard]
+    B --> H[Settings]
+    
+    C --> I[Redux Store]
+    C --> J[Dapr State]
+    
+    D --> K[Socket.IO]
+    D --> L[REST Client]
+    D --> M[WebSocket]
 ```
 
-### Implementation Details
-- React 19.x for component architecture
-- Micro-frontends for scalable UI development
-- Real-time updates via WebSocket/Socket.IO
-- Responsive design for multi-device support
-- Accessibility compliance (WCAG 2.1)
-- Internationalization support
+Key Responsibilities:
+- User interface and experience
+- State management
+- Real-time updates
+- Workflow visualization
+- Component reusability
+- Accessibility compliance
 
-## API Gateway Layer
+### 2. API Gateway Layer
 ```mermaid
 graph TD
-    A[Kong API Gateway] --> B[Rate Limiting]
+    A[Kong Gateway] --> B[Rate Limiting]
     A --> C[Authentication]
     A --> D[Load Balancing]
     A --> E[API Versioning]
-    A --> F[Request/Response Transform]
-    B --> G[Security Policies]
-    C --> H[Keycloak Integration]
-    D --> I[Service Discovery]
+    B --> F[Security Policies]
+    C --> G[Keycloak Integration]
+    D --> H[Service Discovery]
 ```
 
-### Implementation Details
-- Kong 3.9.0 for API management
-- Request/response transformation
-- Traffic control and rate limiting
-- SSL/TLS termination
-- API analytics and monitoring
-- Service mesh integration
+Key Responsibilities:
+- Request routing
+- Rate limiting
+- Authentication
+- Load balancing
+- API versioning
+- Traffic management
 
-## Application Services Layer
+### 3. Application Services Layer
 ```mermaid
 graph TD
-    A[Microservices] --> B[Workflow Service]
+    A[Backend Services] --> B[Workflow Service]
     A --> C[User Management]
     A --> D[Billing Service]
     A --> E[Analytics Service]
-    A --> F[Notification Service]
-    B --> G[CrewAI Integration]
-    C --> H[Multi-tenancy]
-    D --> I[Usage Metering]
-    E --> J[Reporting Engine]
-    F --> K[Multi-channel Alerts]
+    B --> F[CrewAI Integration]
+    C --> G[Multi-tenancy]
+    D --> H[Usage Metering]
+    E --> I[Reporting Engine]
 ```
 
-### Implementation Details
-- Microservices architecture
-- Event-driven design
-- Domain-driven design patterns
-- Circuit breaker patterns
-- Retry mechanisms
-- Fault tolerance
+Key Responsibilities:
+- Business logic
+- Service orchestration
+- Data processing
+- Event handling
+- Transaction management
+- Error handling
 
-## AI/ML Layer
+### 4. AI/ML Layer
 ```mermaid
 graph TD
     A[AI Services] --> B[Model Registry]
     A --> C[Training Pipeline]
     A --> D[Inference Engine]
-    A --> E[Model Monitoring]
-    B --> F[Version Control]
-    C --> G[AutoML]
+    B --> E[Version Control]
+    C --> F[AutoML]
+    D --> G[Real-time Processing]
     D --> H[Batch Processing]
-    D --> I[Real-time Processing]
-    E --> J[Performance Metrics]
 ```
 
-### Implementation Details
-- CrewAI 0.102.0 for orchestration
-- Model versioning and registry
-- Automated training pipelines
-- A/B testing framework
-- Model performance monitoring
+Key Responsibilities:
+- Model management
+- Training orchestration
+- Inference serving
+- Performance monitoring
 - Resource optimization
+- Model versioning
 
-## Data Layer
+### 5. Data Layer
 ```mermaid
 graph TD
-    A[Data Services] --> B[Master Data]
-    A --> C[Operational Data]
-    A --> D[Analytics Data]
-    B --> E[PostgreSQL + pgvector]
-    C --> F[Redis Cache]
-    D --> G[Data Warehouse]
-    E --> H[Multi-tenant Schema]
-    F --> I[Session Store]
-    G --> J[BI Tools]
+    A[Data Services] --> B[PostgreSQL]
+    A --> C[Redis Cache]
+    
+    B --> D[Core Data]
+    B --> E[Vector Storage]
+    B --> F[JSONB Storage]
+    
+    C --> G[State Store]
+    C --> H[Pub/Sub]
+    C --> I[Session Cache]
 ```
 
-### Implementation Details
-- PostgreSQL 17.0 with pgvector
-- Redis 7.4 for caching
-- Data partitioning strategies
-- Backup and recovery procedures
-- Data lifecycle management
-- Archive and retention policies
+Key Responsibilities:
+- Data persistence
+- Caching
+- State management
+- Event streaming
+- Data validation
+- Backup/recovery
 
-## Integration Layer
+### 6. Integration Layer
 ```mermaid
 graph TD
-    A[Integration Services] --> B[API Management]
-    A --> C[Event Bus]
-    A --> D[ETL Pipeline]
-    B --> E[REST/GraphQL]
-    C --> F[Message Queues]
-    D --> G[Data Connectors]
-    E --> H[API Documentation]
-    F --> I[Event Streaming]
-    G --> J[Third-party Systems]
+    A[Integration Services] --> B[Data Ingestion]
+    A --> C[Data Export]
+    A --> D[Protocol Adapters]
+    
+    B --> E[CRM Systems]
+    B --> F[External DBs]
+    B --> G[Third-party APIs]
+    
+    C --> H[Transform]
+    C --> I[Validate]
+    
+    D --> J[REST/GraphQL]
+    D --> K[JDBC/ODBC]
+    D --> L[Message Queues]
 ```
 
-### Implementation Details
-- REST/GraphQL APIs
-- Message queue integration
-- ETL processes
-- Third-party system connectors
-- Data transformation
+Key Responsibilities:
+- External system integration
 - Protocol adaptation
+- Data transformation
+- Error handling
+- Monitoring
+- Security
 
-## Security Layer
+### 7. Security Layer (Keycloak)
 ```mermaid
 graph TD
-    A[Keycloak Security Layer] --> B[Authentication]
+    A[Keycloak] --> B[Authentication]
     A --> C[Authorization]
     A --> D[Identity Management]
     A --> E[Session Management]
     
     B --> F[OAuth 2.0/OIDC]
-    B --> G[Social Login]
-    B --> H[MFA]
+    B --> G[MFA]
     
-    C --> I[Role-based Access]
-    C --> J[Policy Management]
-    C --> K[Group Management]
+    C --> H[RBAC]
+    C --> I[Policies]
     
-    D --> L[User Federation]
-    D --> M[LDAP/AD Integration]
-    D --> N[User Registration]
+    D --> J[User Federation]
+    D --> K[LDAP/AD]
     
-    E --> O[Token Management]
-    E --> P[Session Policies]
-    E --> Q[SSO]
+    E --> L[Token Management]
+    E --> M[SSO]
 ```
 
-### Implementation Details
-- Keycloak 26+ integration
-- OAuth 2.0 and OpenID Connect
-- Multi-factor authentication
-- Single sign-on (SSO)
-- Role-based access control
-- User federation
+Key Responsibilities:
+- Authentication
+- Authorization
+- Identity management
+- Access control
 - Token management
-- Session policies
+- Federation
 
 ## Compliance & Standards
+
+### Healthcare Standards
+#### 1. HIPAA
 ```mermaid
 graph TD
-    A[Compliance & Standards] --> B[Healthcare]
-    A --> C[Financial]
-    A --> D[Data Privacy]
-    A --> E[Security]
-    A --> F[Cloud]
+    A[HIPAA] --> B[Privacy]
+    A --> C[Security]
+    A --> D[Breach Rules]
     
-    B --> B1[HIPAA]
-    B --> B2[HITECH]
-    B --> B3[HL7 FHIR]
+    B --> E[PHI Protection]
+    B --> F[Patient Rights]
     
-    C --> C1[SOX]
-    C --> C2[PCI DSS]
-    C --> C3[Basel III]
+    C --> G[Technical Controls]
+    C --> H[Physical Controls]
+    C --> I[Administrative]
     
-    D --> D1[GDPR]
-    D --> D2[CCPA]
-    D --> D3[PIPEDA]
-    
-    E --> E1[ISO 27001]
-    E --> E2[NIST]
-    E --> E3[SOC 2]
-    
-    F --> F1[CSA STAR]
-    F --> F2[FedRAMP]
-    F --> F3[ISO 27017]
+    D --> J[Notification]
+    D --> K[Response Plan]
 ```
 
-### Standards Implementation
+Requirements:
+- Data encryption (at rest/transit)
+- Access logging
+- Role-based access
+- Breach notification
+- Business agreements
 
-#### Healthcare Standards
-1. **HIPAA Compliance**
-   - Encryption at rest and in transit
-   - Audit logging for PHI access
-   - Role-based access control
-   - Business Associate Agreements
-   - Security incident procedures
+#### 2. HITECH
+- Electronic health records security
+- Technology implementation
+- Breach protocols
+- Patient data access
 
-2. **HITECH Requirements**
-   - Electronic health record security
-   - Breach notification protocols
-   - Patient data access controls
-   - Security technology implementation
+#### 3. HL7 FHIR
+- Healthcare data exchange
+- RESTful implementation
+- Resource modeling
+- Interoperability
 
-3. **HL7 FHIR Integration**
-   - Standardized healthcare data exchange
-   - RESTful API implementation
-   - Resource-based data modeling
-   - Interoperability standards
+### Financial Standards
+#### 1. SOX
+- Audit trails
+- Data integrity
+- Access management
+- Change control
 
-#### Financial Standards
-1. **SOX Compliance**
-   - Audit trail implementation
-   - Financial data integrity
-   - Access control documentation
-   - Change management procedures
+#### 2. PCI DSS
+- Payment security
+- Data encryption
+- Security assessment
+- Network security
 
-2. **PCI DSS Requirements**
-   - Secure payment processing
-   - Card data encryption
-   - Regular security assessments
-   - Network segmentation
+#### 3. Basel III
+- Risk aggregation
+- Reporting
+- Data validation
+- Regulatory compliance
 
-3. **Basel III Framework**
-   - Risk data aggregation
-   - Risk reporting capabilities
-   - Data accuracy validation
-   - Regulatory reporting
-
-#### Data Privacy Standards
-1. **GDPR Implementation**
-   - Data minimization
-   - Privacy by design
-   - Right to be forgotten
-   - Data portability
-   - Consent management
-   - Cross-border data transfer
-
-2. **CCPA Compliance**
-   - Consumer data rights
-   - Opt-out mechanisms
-   - Data inventory
-   - Privacy notices
-   - Data subject requests
-
-3. **PIPEDA Requirements**
-   - Consent management
-   - Data collection limitations
-   - Transparency requirements
-   - Privacy impact assessments
-
-### Technical Controls Implementation
+### Data Privacy Standards
+#### 1. GDPR
 ```mermaid
 graph TD
-    A[Technical Controls] --> B[Encryption]
-    A --> C[Access Control]
+    A[GDPR] --> B[Data Rights]
+    A --> C[Processing]
+    A --> D[Security]
+    
+    B --> E[Access]
+    B --> F[Erasure]
+    B --> G[Portability]
+    
+    C --> H[Consent]
+    C --> I[Purpose]
+    
+    D --> J[Protection]
+    D --> K[Breaches]
+```
+
+Requirements:
+- Data minimization
+- Privacy by design
+- Right to be forgotten
+- Consent management
+- Cross-border transfers
+
+#### 2. CCPA & PIPEDA
+- Consumer rights
+- Data inventory
+- Privacy notices
+- Consent management
+
+### Security Standards
+#### 1. ISO 27001
+- Information security
+- Risk assessment
+- Security controls
+- Compliance monitoring
+
+#### 2. NIST Framework
+- Identity management
+- Access control
+- Data protection
+- Incident response
+
+#### 3. SOC 2
+- Security controls
+- Availability
+- Confidentiality
+- Privacy
+
+## Cross-Cutting Concerns
+
+### Technical Controls
+```mermaid
+graph TD
+    A[Controls] --> B[Encryption]
+    A --> C[Access]
     A --> D[Monitoring]
-    A --> E[Backup]
     
-    B --> B1[AES-256]
-    B --> B2[TLS 1.3]
+    B --> E[AES-256]
+    B --> F[TLS 1.3]
     
-    C --> C1[MFA]
-    C --> C2[RBAC]
+    C --> G[MFA]
+    C --> H[RBAC]
     
-    D --> D1[Audit Logs]
-    D --> D2[Real-time Alerts]
-    
-    E --> E1[Redundancy]
-    E --> E2[Recovery]
+    D --> I[Logging]
+    D --> J[Alerts]
 ```
 
 ### Administrative Controls
+- Security policies
+- Procedures
+- Training
+- Audits
+- Reviews
+
+### Monitoring & Observability
 ```mermaid
 graph TD
-    A[Administrative Controls] --> B[Policies]
-    A --> C[Procedures]
-    A --> D[Training]
-    A --> E[Reviews]
+    A[Monitoring] --> B[Metrics]
+    A --> C[Tracing]
+    A --> D[Logging]
     
-    B --> B1[Security]
-    B --> B2[Privacy]
+    B --> E[Performance]
+    B --> F[Business KPIs]
     
-    C --> C1[Incident Response]
-    C --> C2[Change Management]
+    C --> G[Distributed]
+    C --> H[Error Tracking]
     
-    D --> D1[Employee Training]
-    D --> D2[Awareness]
-    
-    E --> E1[Audits]
-    E --> E2[Assessments]
+    D --> I[Centralized]
+    D --> J[Analysis]
 ```
 
-### Physical Controls
-```mermaid
-graph TD
-    A[Physical Controls] --> B[Data Centers]
-    A --> C[Hardware]
-    A --> D[Personnel]
-    
-    B --> B1[Access Control]
-    B --> B2[Environmental]
-    
-    C --> C1[Asset Management]
-    C --> C2[Disposal]
-    
-    D --> D1[Background Checks]
-    D --> D2[Security Clearance]
-```
-
-## Implementation Guidelines
-
-### Development Standards
-- Clean code principles
-- Test-driven development
-- Continuous integration/deployment
-- Code review processes
-- Documentation requirements
-
-### Security Practices
-- Zero-trust architecture
-- Regular security audits
-- Penetration testing
-- Vulnerability assessments
-- Security training
-
-### Monitoring & Operations
-- 24/7 system monitoring
-- Incident response procedures
-- Capacity planning
-- Performance optimization
-- Disaster recovery
-
-### Scalability Strategy
+### Scalability & Performance
 - Horizontal scaling
 - Load balancing
+- Caching strategy
 - Database sharding
-- Caching strategies
 - Resource optimization
 
-### Maintenance Procedures
-- Regular updates
-- Security patches
-- Performance tuning
-- Backup verification
-- System health checks
+### Disaster Recovery
+- Backup procedures
+- Recovery testing
+- Business continuity
+- Incident response
+- Data replication
+
+### Data Governance
+- Data classification
+- Retention policies
+- Access controls
+- Audit logging
+- Compliance monitoring
+
+For implementation details, see [IMPLEMENTATION.md](IMPLEMENTATION.md).
