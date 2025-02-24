@@ -350,3 +350,4 @@ graph TD
 - Compliance monitoring
 
 For implementation details, see [IMPLEMENTATION.md](IMPLEMENTATION.md).
+For detailed system interaction flows, see [applicationFlow.md](applicationFlow.md).

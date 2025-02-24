@@ -1,5 +1,7 @@
 # Technical Implementation Guide
 
+For detailed system interaction flows and sequence diagrams, see [applicationFlow.md](applicationFlow.md).
+
 ## Table of Contents
 1. [Development Setup](#development-setup)
 2. [Component Implementation](#component-implementation)

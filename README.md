@@ -6,6 +6,7 @@ A modular, scalable platform for enterprise workflow automation using AI agents.
 - **[README.md](README.md)**: Project overview and quick start guide
 - **[layers.md](layers.md)**: Detailed architecture and compliance standards
 - **[IMPLEMENTATION.md](IMPLEMENTATION.md)**: Technical implementation details
+- **[applicationFlow.md](applicationFlow.md)**: Detailed system interaction flows and processes
 
 ## Key Features
 - No-code workflow builder with ReactFlow
