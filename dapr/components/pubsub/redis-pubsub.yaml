@@ -1,0 +1,35 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+spec:
+  type: pubsub.redis
+  version: v1
+  metadata:
+    - name: redisHost
+      value: redis:6379
+    - name: redisPassword
+      value: redispassword
+    - name: enableTLS
+      value: false
+    - name: processingTimeout
+      value: 60
+    - name: redeliverInterval
+      value: 30
+    - name: requeueAfterFailure
+      value: true
+    - name: maxLen
+      value: 10000
+    - name: consumerGroup
+      value: workflow-platform
+    - name: concurrency
+      value: 10
+    - name: maxRetries
+      value: 5
+    - name: maxRetryBackoff
+      value: "5s"
+scopes:
+  - workflow-service
+  - ai-service
+auth:
+  secretStore: secretstore

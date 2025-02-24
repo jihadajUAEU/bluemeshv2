@@ -1,0 +1,51 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: workflow-service
+    url: http://workflow-service:8000
+    routes:
+      - name: workflow-api
+        paths:
+          - /api/v1/workflows
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          anonymous: null
+      - name: rate-limiting
+        config:
+          second: 5
+          hour: 10000
+          policy: local
+
+  - name: ai-service
+    url: http://ai-service:9000
+    routes:
+      - name: ai-api
+        paths:
+          - /api/v1/ai
+        strip_path: true
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          anonymous: null
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Authorization
+            - Content-Type
+          exposed_headers:
+            - Authorization
+          credentials: true
+          max_age: 3600

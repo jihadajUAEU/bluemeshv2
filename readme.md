@@ -2,115 +2,126 @@
 
 A modular, scalable platform for enterprise workflow automation using AI agents. Built with the latest stable SDKs, libraries, and permissive licensing (MIT/Apache 2.0).
 
-## Documentation Structure
-- **[readme.md](readme.md)**: Project overview and quick start guide
-- **[architecture-layers.md](architecture-layers.md)**: Detailed architecture and compliance standards
-- **[implementation-guide.md](implementation-guide.md)**: Technical implementation details
-- **[application-flow.md](application-flow.md)**: Detailed system interaction flows and processes
-- **[directory-structure.md](directory-structure.md)**: Complete project structure and organization
+## Features
 
-## Key Features
 - No-code workflow builder with ReactFlow
 - Real-time AI response streaming
-- Multi-LLM orchestration
+- Multi-LLM orchestration with CrewAI
 - Enterprise-grade security & compliance
 - Distributed application runtime with Dapr
 
-## Basic Architecture
-```mermaid
-graph TD
-    A[Frontend Layer] --> B[API Gateway]
-    B --> C[Backend Services]
-    B --> K[Security Layer]
-    C --> D[AI Layer]
-    C --> E[Data Layer]
-    C --> I[Integration Layer]
-    J[Dapr Runtime] --> A & C & D & E & I
-
-    subgraph Key Components
-        B --> Kong[Kong 3.9.0]
-        K --> Keycloak[Keycloak 26+]
-        D --> CrewAI[CrewAI 0.102.0]
-        E --> DB[PostgreSQL 17.0]
-        E --> Cache[Redis 7.4]
-    end
-```
-
-For detailed architecture, see [architecture-layers.md](architecture-layers.md).
-
 ## Prerequisites
-- Docker 25.0.2
-- Docker Compose 2.33.0
-- Python 3.12.2
+
+- Docker 25.0.2+
+- Docker Compose 2.33.0+
 - Node.js 22.x
-- Dapr CLI 1.14
-- Keycloak 26+
+- Python 3.12.2+
+- Dapr CLI 1.14+
+- OpenAI API key
 
 ## Quick Start
 
-1. **Clone Repository**
+1. Clone the repository:
 ```bash
 git clone https://github.com/your-org/workflow-platform.git
 cd workflow-platform
 ```
 
-2. **Configure Environment**
+2. Copy the environment file and configure it:
 ```bash
-# Database settings
-export POSTGRES_USER=dbuser
-export POSTGRES_PASSWORD=dbpassword
-export POSTGRES_DB=workflow_automation
-
-# Redis settings
-export REDIS_PASSWORD=redispassword
-export REDIS_PORT=6379
-
-# Keycloak settings
-export KEYCLOAK_ADMIN=admin
-export KEYCLOAK_ADMIN_PASSWORD=admin
-export KEYCLOAK_URL=http://localhost:8080
-export KEYCLOAK_REALM=workflow-platform
-export KEYCLOAK_CLIENT_ID=workflow-client
-export KEYCLOAK_CLIENT_SECRET=your-client-secret
+cp .env.development .env
+# Edit .env and set your OpenAI API key and other configurations
 ```
 
-3. **Setup AI Agents**
+3. Run the setup script:
 ```bash
-cd platform/ai_agents
-cp .env.example .env
-# Configure OpenAI API key and other settings
+npm run setup
 ```
 
-4. **Start Services**
+4. Start the development environment:
 ```bash
-cd ../
-docker-compose up -d
+npm run dev
 ```
+
+## Development
+
+The project is structured into several layers:
+
+### Frontend Layer
+- React 19.x with ReactFlow
+- Real-time workflow visualization
+- Component-based architecture
+
+### Backend Services
+- Node.js 22.x/TypeScript 5.3
+- Dapr building blocks integration
+- Event-driven architecture
+
+### AI Layer
+- CrewAI 0.102.0 with Python 3.12.9
+- Multi-agent orchestration
+- Real-time streaming
+
+### Data Layer
+- PostgreSQL 17.0
+- Redis 7.4 OSS
+- Vector storage
+
+## Scripts
+
+- `npm run setup` - Initialize project and start infrastructure
+- `npm run dev` - Start all services in development mode
+- `npm run build` - Build all services
+- `npm run test` - Run all tests
+- `npm run lint` - Run linting
+
+## Documentation
+
+- [Architecture Layers](architecture-layers.md)
+- [Implementation Guide](implementation-guide.md)
+- [Application Flow](application-flow.md)
+- [Directory Structure](directory-structure.md)
 
 ## Service Access Points
 
-| Service | URL | Credentials |
-|---------|-----|-------------|
+| Service | URL | Default Credentials |
+|---------|-----|-------------------|
 | Frontend UI | http://localhost:3001 | - |
 | AI Agents API | http://localhost:9000 | - |
 | Kong Admin | http://localhost:8001 | - |
-| Konga Dashboard | http://localhost:1337 | - |
 | Keycloak Admin | http://localhost:8080 | admin/admin |
-| Grafana | http://localhost:3000 | admin/admin |
-| Prometheus | http://localhost:9090 | - |
-| PostgreSQL | localhost:5433 | See env vars |
-| Redis | localhost:6379 | See env vars |
+| Zipkin UI | http://localhost:9411 | - |
 
-For detailed setup instructions and configurations, see [implementation-guide.md](implementation-guide.md).
+## Security
+
+This platform implements enterprise-grade security features:
+- Keycloak CE 26+ for authentication/authorization
+- JWT with PKCE for secure token handling
+- HIPAA & GDPR compliance mechanisms
+- Data encryption at rest and in transit
 
 ## Contributing
+
 1. Fork the repository
 2. Create a feature branch
-3. Follow coding standards (see [implementation-guide.md](implementation-guide.md))
-4. Submit pull request with comprehensive description
-5. Ensure all tests pass and documentation is updated
+3. Follow coding standards (see ESLint/Prettier configs)
+4. Write/update tests
+5. Submit a pull request
+
+## Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run specific service tests
+npm run test:frontend
+npm run test:workflow
+npm run test:ai
+```
 
 ## License
+
 This project is dual-licensed under:
 - MIT License
 - Apache License 2.0

@@ -1,0 +1,27 @@
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: workflow-config
+spec:
+  tracing:
+    samplingRate: "1"
+    zipkin:
+      endpointAddress: "http://zipkin:9411/api/v2/spans"
+  metrics:
+    enabled: true
+  secrets:
+    scopes:
+      - storeName: secretstore
+        defaultAccess: allow
+  features:
+    - name: AppHealthCheck
+      enabled: true
+    - name: ResiliencyPolicy
+      enabled: true
+  httpPipeline:
+    handlers:
+      - name: oauth2
+        type: middleware.http.oauth2
+      - name: ratelimit
+        type: middleware.http.ratelimit
+        version: v1
