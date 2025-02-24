@@ -14,7 +14,7 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
   entities: [Workflow, WorkflowNode, WorkflowEdge],
-  migrations: [],
+  migrations: ['src/migrations/*.ts'],
   subscribers: []
 });
 

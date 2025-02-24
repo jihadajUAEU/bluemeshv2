@@ -1,6 +1,7 @@
 import { Repository } from 'typeorm';
 import { AppDataSource } from '../config/data-source.js';
 import { Workflow } from '../models/Workflow.js';
+import { daprService } from './dapr.service.js';
 import type {
   CreateWorkflowRequest,
   UpdateWorkflowRequest,
@@ -10,9 +11,22 @@ import type {
 
 export class WorkflowService {
   private workflowRepository: Repository<Workflow>;
+  private readonly CACHE_TTL = 300; // 5 minutes in seconds
 
   constructor() {
     this.workflowRepository = AppDataSource.getRepository(Workflow);
+    this.setupEventSubscriptions();
+  }
+
+  private setupEventSubscriptions(): void {
+    daprService.subscribeToTopic('workflow.updated', async (data) => {
+      const workflowData = data as { id: string };
+      await this.invalidateCache(workflowData.id);
+    });
+  }
+
+  private async invalidateCache(workflowId: string): Promise<void> {
+    await daprService.deleteState(`workflow-${workflowId}`);
   }
 
   async create(request: CreateWorkflowRequest, userId: string): Promise<WorkflowResponse> {
@@ -24,14 +38,32 @@ export class WorkflowService {
     });
 
     const saved = await this.workflowRepository.save(workflow);
+    
+    // Publish event
+    await daprService.publishEvent('workflow.created', {
+      id: saved.id,
+      userId,
+      action: 'create'
+    });
+
     return this.mapToResponse(saved);
   }
 
   async findById(id: string, userId: string): Promise<WorkflowResponse> {
-    const workflow = await this.workflowRepository.findOneOrFail({
-      where: { id },
-      relations: ['nodes', 'edges']
-    });
+    // Try to get from cache first
+    const cached = await daprService.getState<Workflow>(`workflow-${id}`);
+    let workflow: Workflow;
+
+    if (cached) {
+      workflow = cached;
+    } else {
+      workflow = await this.workflowRepository.findOneOrFail({
+        where: { id },
+        relations: ['nodes', 'edges']
+      });
+      // Cache the workflow
+      await daprService.saveState(`workflow-${id}`, workflow);
+    }
 
     // Update access history
     await this.workflowRepository.update(id, {
@@ -62,6 +94,13 @@ export class WorkflowService {
       created_by,
       search
     } = query;
+
+    const cacheKey = `workflows-${JSON.stringify(query)}`;
+    const cached = await daprService.getState<[Workflow[], number]>(cacheKey);
+
+    if (cached) {
+      return [cached[0].map(this.mapToResponse), cached[1]];
+    }
 
     const queryBuilder = this.workflowRepository
       .createQueryBuilder('workflow')
@@ -97,6 +136,9 @@ export class WorkflowService {
       .take(limit)
       .getManyAndCount();
 
+    // Cache the results
+    await daprService.saveState(cacheKey, [workflows, total]);
+
     return [workflows.map(this.mapToResponse), total];
   }
 
@@ -111,11 +153,31 @@ export class WorkflowService {
     });
 
     const updated = await this.workflowRepository.save(workflow);
+
+    // Invalidate cache
+    await this.invalidateCache(id);
+
+    // Publish event
+    await daprService.publishEvent('workflow.updated', {
+      id,
+      userId,
+      action: 'update'
+    });
+
     return this.mapToResponse(updated);
   }
 
   async delete(id: string): Promise<void> {
     await this.workflowRepository.delete(id);
+    
+    // Invalidate cache
+    await this.invalidateCache(id);
+
+    // Publish event
+    await daprService.publishEvent('workflow.deleted', {
+      id,
+      action: 'delete'
+    });
   }
 
   private mapToResponse(workflow: Workflow): WorkflowResponse {

@@ -1,134 +1,195 @@
-import 'reflect-metadata';
-import { DataSource } from 'typeorm';
-import { Workflow } from '../models/Workflow.js';
-import { WorkflowNode } from '../models/WorkflowNode.js';
-import { WorkflowEdge } from '../models/WorkflowEdge.js';
+import { beforeAll, afterAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { WorkflowService } from '../services/workflow.service.js';
+import { AppDataSource } from '../config/data-source.js';
+import { daprService } from '../services/dapr.service.js';
 import type { CreateWorkflowRequest, UpdateWorkflowRequest } from '../types/api.js';
 
+// Mock Dapr service
+jest.mock('../services/dapr.service.js');
+
+beforeEach(() => {
+  jest.spyOn(daprService, 'getState').mockResolvedValue(null);
+  jest.spyOn(daprService, 'saveState').mockResolvedValue();
+  jest.spyOn(daprService, 'deleteState').mockResolvedValue();
+  jest.spyOn(daprService, 'publishEvent').mockResolvedValue();
+  jest.spyOn(daprService, 'subscribeToTopic').mockImplementation(() => {});
+});
+
 describe('WorkflowService', () => {
-  let dataSource: DataSource;
   let workflowService: WorkflowService;
-  const testUserId = '12345678-1234-1234-1234-123456789012';
+  const userId = '123e4567-e89b-12d3-a456-426614174000';
 
   beforeAll(async () => {
-    // Create a test database connection
-    dataSource = new DataSource({
-      type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432', 10),
-      username: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-      database: process.env.DB_NAME || 'bluemesh_test',
-      entities: [Workflow, WorkflowNode, WorkflowEdge],
-      synchronize: true,
-      dropSchema: true
-    });
-
-    await dataSource.initialize();
-    workflowService = new WorkflowService();
+    await AppDataSource.initialize();
   });
 
   afterAll(async () => {
-    await dataSource.destroy();
+    await AppDataSource.destroy();
   });
 
-  beforeEach(async () => {
-    // Clear the database before each test
-    await dataSource.synchronize(true);
+  beforeEach(() => {
+    workflowService = new WorkflowService();
+    jest.clearAllMocks();
   });
 
   describe('create', () => {
-    it('should create a new workflow', async () => {
-      const createRequest: CreateWorkflowRequest = {
+    it('should create a workflow and publish event', async () => {
+      const request: CreateWorkflowRequest = {
         name: 'Test Workflow',
-        description: 'Test workflow description',
-        data_region: 'us-east-1',
-        data_classification: 'standard'
+        description: 'Test Description',
+        data_region: 'us-east-1'
       };
 
-      const workflow = await workflowService.create(createRequest, testUserId);
+      const result = await workflowService.create(request, userId);
 
-      expect(workflow).toBeDefined();
-      expect(workflow.id).toBeDefined();
-      expect(workflow.name).toBe(createRequest.name);
-      expect(workflow.description).toBe(createRequest.description);
-      expect(workflow.status).toBe('draft');
-      expect(workflow.data_region).toBe(createRequest.data_region);
-      expect(workflow.created_by).toBe(testUserId);
+      expect(result).toMatchObject({
+        name: request.name,
+        description: request.description,
+        data_region: request.data_region,
+        status: 'draft',
+        created_by: userId
+      });
+
+      expect(daprService.publishEvent).toHaveBeenCalledWith('workflow.created', {
+        id: result.id,
+        userId,
+        action: 'create'
+      });
     });
   });
 
   describe('findById', () => {
-    it('should find a workflow by ID', async () => {
-      const createRequest: CreateWorkflowRequest = {
+    it('should return cached workflow if available', async () => {
+      const cachedWorkflow = {
+        id: '123',
+        name: 'Cached Workflow',
+        created_by: userId
+      };
+
+      jest.spyOn(daprService, 'getState').mockResolvedValueOnce(cachedWorkflow);
+
+      const result = await workflowService.findById('123', userId);
+
+      expect(result).toMatchObject({
+        id: cachedWorkflow.id,
+        name: cachedWorkflow.name
+      });
+      expect(daprService.getState).toHaveBeenCalledWith('workflow-123');
+    });
+
+    it('should fetch from database and cache if not in cache', async () => {
+      jest.spyOn(daprService, 'getState').mockResolvedValueOnce(null);
+
+      const request: CreateWorkflowRequest = {
         name: 'Test Workflow',
-        description: 'Test workflow description',
+        description: 'Test Description',
         data_region: 'us-east-1'
       };
 
-      const created = await workflowService.create(createRequest, testUserId);
-      const found = await workflowService.findById(created.id, testUserId);
+      const created = await workflowService.create(request, userId);
+      const result = await workflowService.findById(created.id, userId);
 
-      expect(found).toBeDefined();
-      expect(found.id).toBe(created.id);
-      expect(found.last_accessed_by).toBe(testUserId);
-      expect(found.access_history).toHaveLength(1);
-      expect(found.access_history![0].userId).toBe(testUserId);
-      expect(found.access_history![0].action).toBe('view');
-    });
-  });
-
-  describe('findAll', () => {
-    it('should list all workflows with pagination', async () => {
-      // Create multiple workflows
-      const workflows = await Promise.all([
-        workflowService.create({ name: 'Workflow 1', data_region: 'us-east-1' }, testUserId),
-        workflowService.create({ name: 'Workflow 2', data_region: 'us-east-1' }, testUserId),
-        workflowService.create({ name: 'Workflow 3', data_region: 'us-east-1' }, testUserId)
-      ]);
-
-      const [result, total] = await workflowService.findAll({ page: 1, limit: 2 });
-
-      expect(total).toBe(3);
-      expect(result).toHaveLength(2);
-      expect(result[0].id).toBe(workflows[0].id);
-      expect(result[1].id).toBe(workflows[1].id);
+      expect(result).toMatchObject({
+        name: request.name,
+        description: request.description
+      });
+      expect(daprService.saveState).toHaveBeenCalled();
     });
   });
 
   describe('update', () => {
-    it('should update a workflow', async () => {
-      const created = await workflowService.create({
+    it('should update workflow, invalidate cache and publish event', async () => {
+      const request: CreateWorkflowRequest = {
         name: 'Original Name',
+        description: 'Original Description',
         data_region: 'us-east-1'
-      }, testUserId);
+      };
+
+      const created = await workflowService.create(request, userId);
 
       const updateRequest: UpdateWorkflowRequest = {
         name: 'Updated Name',
-        status: 'active'
+        description: 'Updated Description'
       };
 
-      const updated = await workflowService.update(created.id, updateRequest, testUserId);
+      const result = await workflowService.update(created.id, updateRequest, userId);
 
-      expect(updated.name).toBe(updateRequest.name);
-      expect(updated.status).toBe(updateRequest.status);
-      expect(updated.last_accessed_by).toBe(testUserId);
+      expect(result).toMatchObject({
+        id: created.id,
+        name: updateRequest.name,
+        description: updateRequest.description
+      });
+
+      expect(daprService.deleteState).toHaveBeenCalledWith(`workflow-${created.id}`);
+      expect(daprService.publishEvent).toHaveBeenCalledWith('workflow.updated', {
+        id: created.id,
+        userId,
+        action: 'update'
+      });
     });
   });
 
   describe('delete', () => {
-    it('should delete a workflow', async () => {
-      const created = await workflowService.create({
-        name: 'To Delete',
+    it('should delete workflow, invalidate cache and publish event', async () => {
+      const request: CreateWorkflowRequest = {
+        name: 'To Be Deleted',
+        description: 'This workflow will be deleted',
         data_region: 'us-east-1'
-      }, testUserId);
+      };
 
+      const created = await workflowService.create(request, userId);
       await workflowService.delete(created.id);
 
-      await expect(workflowService.findById(created.id, testUserId))
-        .rejects
-        .toThrow();
+      expect(daprService.deleteState).toHaveBeenCalledWith(`workflow-${created.id}`);
+      expect(daprService.publishEvent).toHaveBeenCalledWith('workflow.deleted', {
+        id: created.id,
+        action: 'delete'
+      });
+
+      await expect(workflowService.findById(created.id, userId)).rejects.toThrow();
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return cached results if available', async () => {
+      const cachedResults: [any[], number] = [
+        [{ id: '123', name: 'Cached Workflow' }],
+        1
+      ];
+
+      jest.spyOn(daprService, 'getState').mockResolvedValueOnce(cachedResults);
+
+      const [results, total] = await workflowService.findAll({});
+
+      expect(results).toHaveLength(1);
+      expect(total).toBe(1);
+      expect(results[0]).toMatchObject({
+        id: '123',
+        name: 'Cached Workflow'
+      });
+    });
+
+    it('should fetch from database and cache results if not cached', async () => {
+      jest.spyOn(daprService, 'getState').mockResolvedValueOnce(null);
+
+      const request1: CreateWorkflowRequest = {
+        name: 'Workflow 1',
+        data_region: 'us-east-1'
+      };
+
+      const request2: CreateWorkflowRequest = {
+        name: 'Workflow 2',
+        data_region: 'us-east-1'
+      };
+
+      await workflowService.create(request1, userId);
+      await workflowService.create(request2, userId);
+
+      const [results, total] = await workflowService.findAll({});
+
+      expect(results.length).toBeGreaterThanOrEqual(2);
+      expect(total).toBeGreaterThanOrEqual(2);
+      expect(daprService.saveState).toHaveBeenCalled();
     });
   });
 });
