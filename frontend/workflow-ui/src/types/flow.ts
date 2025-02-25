@@ -1,6 +1,25 @@
 import { Node, Edge, NodeProps, EdgeProps } from 'reactflow';
 import TaskNode from '../components/workflow/nodes/TaskNode';
+import ResearchAgentNode from '../components/workflow/nodes/ResearchAgentNode';
+import AnalysisAgentNode from '../components/workflow/nodes/AnalysisAgentNode';
+import ImplementationAgentNode from '../components/workflow/nodes/ImplementationAgentNode';
+import QAAgentNode from '../components/workflow/nodes/QAAgentNode';
 import ConditionalEdge from '../components/workflow/edges/ConditionalEdge';
+import { 
+  AgentNodeData 
+} from '../components/workflow/nodes/BaseAgentNode';
+import { 
+  ResearchAgentNodeData 
+} from '../components/workflow/nodes/ResearchAgentNode';
+import { 
+  AnalysisAgentNodeData 
+} from '../components/workflow/nodes/AnalysisAgentNode';
+import { 
+  ImplementationAgentNodeData 
+} from '../components/workflow/nodes/ImplementationAgentNode';
+import { 
+  QAAgentNodeData 
+} from '../components/workflow/nodes/QAAgentNode';
 
 export interface FlowNodeData {
   type: string;
@@ -13,7 +32,7 @@ export interface FlowEdgeData {
 }
 
 // Define simpler node and edge types without nesting
-export type SimpleNode = Node<FlowNodeData>;
+export type SimpleNode = Node<FlowNodeData | AgentNodeData | ResearchAgentNodeData | AnalysisAgentNodeData | ImplementationAgentNodeData | QAAgentNodeData>;
 export type SimpleEdge = Edge<FlowEdgeData>;
 
 // Component props types
@@ -24,6 +43,10 @@ export type ConditionalEdgeProps = EdgeProps<FlowEdgeData>;
 export const nodeTypes = {
   task: TaskNode,
   default: TaskNode,
+  research: ResearchAgentNode,
+  analysis: AnalysisAgentNode,
+  implementation: ImplementationAgentNode,
+  qa: QAAgentNode,
 } as const;
 
 export const edgeTypes = {

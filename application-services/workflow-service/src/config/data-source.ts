@@ -6,11 +6,11 @@ import { WorkflowEdge } from '../models/WorkflowEdge.js';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-  username: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-  database: process.env.DB_NAME || 'bluemesh',
+  host: process.env.POSTGRES_HOST || 'localhost',
+  port: parseInt(process.env.POSTGRES_PORT || '5433', 10),
+  username: process.env.POSTGRES_USER || 'dbuser',
+  password: process.env.POSTGRES_PASSWORD || 'dbpassword',
+  database: process.env.POSTGRES_DB || 'workflow_automation',
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
   entities: [Workflow, WorkflowNode, WorkflowEdge],

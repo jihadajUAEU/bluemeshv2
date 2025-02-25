@@ -1,7 +1,8 @@
+/// <reference path="./src/types/test-config.d.ts" />
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
-export default defineConfig({
+const config = defineConfig({
   plugins: [react()],
   build: {
     target: 'esnext',
@@ -10,17 +11,14 @@ export default defineConfig({
     name: 'workflow-ui',
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     exclude: [
       'node_modules',
-      '.idea',
-      '.git',
-      '.cache',
       'dist',
       'build',
       'coverage'
     ],
+    setupFiles: ['src/test/setup.ts'],
     testTimeout: 20000,
     coverage: {
       provider: 'v8',
@@ -42,5 +40,6 @@ export default defineConfig({
       '@': '/src',
     },
   },
-  configFile: './tsconfig.vitest.json',
 });
+
+export default config;

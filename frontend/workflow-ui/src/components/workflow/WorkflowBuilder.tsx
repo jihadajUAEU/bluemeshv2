@@ -37,7 +37,7 @@ import {
   updateNodes,
   updateEdges,
 } from '../../store/workflowSlice';
-import { WorkflowData } from '../../types/workflow';
+import { Workflow, CreateWorkflowRequest, DataClassification } from '../../types/workflow';
 import { 
   SimpleNode,
   SimpleEdge,
@@ -140,16 +140,24 @@ const WorkflowBuilder: FC = () => {
   }, []);
 
   const handleSubmit = async (values: WorkflowForm) => {
-    const workflowData: Partial<WorkflowData> = {
-      ...values,
-      status: 'draft',
-    };
-
     try {
       if (id) {
-        await dispatch(updateWorkflow({ id, workflow: workflowData }));
+        await dispatch(updateWorkflow({ 
+          id, 
+          workflow: {
+            name: values.name,
+            data_classification: values.data_classification as DataClassification,
+            data_region: values.data_region,
+            cross_border_allowed: values.cross_border_allowed
+          } 
+        }));
       } else {
-        await dispatch(createWorkflow(workflowData));
+        await dispatch(createWorkflow({
+          name: values.name,
+          data_classification: values.data_classification as DataClassification,
+          data_region: values.data_region,
+          cross_border_allowed: values.cross_border_allowed
+        }));
       }
       navigate('/workflows');
     } catch (error) {
@@ -208,22 +216,131 @@ const WorkflowBuilder: FC = () => {
               <Background color="#aaa" gap={16} />
               <Controls />
               <Panel position="top-right">
-                <Button
-                  size="sm"
-                  variant="light"
-                  onClick={() => {
-                    const newNode = createNewNode({
-                      position: { x: 100, y: 100 },
-                      data: {
-                        type: 'task',
-                        label: `Node ${nodes.length + 1}`,
-                      },
-                    });
-                    setNodes((nds) => [...nds, newNode]);
-                  }}
-                >
-                  Add Node
-                </Button>
+                <Stack gap="xs">
+                  <Button
+                    size="sm"
+                    variant="light"
+                    onClick={() => {
+                      const newNode = createNewNode({
+                        position: { x: 100, y: 100 },
+                        data: {
+                          type: 'task',
+                          label: `Task ${nodes.length + 1}`,
+                        },
+                      });
+                      setNodes((nds) => [...nds, newNode]);
+                    }}
+                  >
+                    Add Task Node
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="light"
+                    color="blue"
+                    onClick={() => {
+                      const newNode = {
+                        id: `node-${Date.now()}`,
+                        type: 'research',
+                        position: { x: 100, y: 100 },
+                        data: {
+                          type: 'research',
+                          label: `Research ${nodes.length + 1}`,
+                          agent_type: 'research',
+                          status: 'idle',
+                          research_topics: ['Topic 1', 'Topic 2'],
+                          data_sources: ['Source 1', 'Source 2']
+                        },
+                        draggable: true,
+                        selectable: true,
+                      };
+                      setNodes((nds) => [...nds, newNode as SimpleNode]);
+                    }}
+                  >
+                    Add Research Agent
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="light"
+                    color="indigo"
+                    onClick={() => {
+                      const newNode = {
+                        id: `node-${Date.now()}`,
+                        type: 'analysis',
+                        position: { x: 100, y: 200 },
+                        data: {
+                          type: 'analysis',
+                          label: `Analysis ${nodes.length + 1}`,
+                          agent_type: 'analysis',
+                          status: 'idle',
+                          analysis_type: 'data',
+                          data_points: 120
+                        },
+                        draggable: true,
+                        selectable: true,
+                      };
+                      setNodes((nds) => [...nds, newNode as SimpleNode]);
+                    }}
+                  >
+                    Add Analysis Agent
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="light"
+                    color="violet"
+                    onClick={() => {
+                      const newNode = {
+                        id: `node-${Date.now()}`,
+                        type: 'implementation',
+                        position: { x: 100, y: 300 },
+                        data: {
+                          type: 'implementation',
+                          label: `Implementation ${nodes.length + 1}`,
+                          agent_type: 'implementation',
+                          status: 'idle',
+                          implementation_type: 'code',
+                          technologies: ['TypeScript', 'React', 'Node.js'],
+                          completion_rate: 0
+                        },
+                        draggable: true,
+                        selectable: true,
+                      };
+                      setNodes((nds) => [...nds, newNode as SimpleNode]);
+                    }}
+                  >
+                    Add Implementation Agent
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="light"
+                    color="green"
+                    onClick={() => {
+                      const newNode = {
+                        id: `node-${Date.now()}`,
+                        type: 'qa',
+                        position: { x: 100, y: 400 },
+                        data: {
+                          type: 'qa',
+                          label: `QA ${nodes.length + 1}`,
+                          agent_type: 'qa',
+                          status: 'idle',
+                          test_count: 0,
+                          passed_tests: 0,
+                          failed_tests: 0,
+                          test_coverage: 0
+                        },
+                        draggable: true,
+                        selectable: true,
+                      };
+                      setNodes((nds) => [...nds, newNode as SimpleNode]);
+                    }}
+                  >
+                    Add QA Agent
+                  </Button>
+                </Stack>
               </Panel>
             </ReactFlow>
           </Box>

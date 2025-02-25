@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev:service": "cross-env NODE_ENV=development ts-node-dev --respawn --transpile-only src/server.ts",
-    "dapr:start": "cross-env dapr run --app-id workflow-service --app-port 3001 --dapr-http-port 3500 --dapr-grpc-port 50001 --components-path ../../dapr/components --config ../../dapr/config/config.yaml",
-    "dev": "npm-run-all --parallel dapr:start dev:service",
+    "dev:service": "cross-env NODE_ENV=development node --loader ts-node/esm src/server.ts",
+    "dapr:start": "cross-env dapr run --app-id workflow-service --app-port 3001 --dapr-http-port 3502 --dapr-grpc-port 50002 --resources-path ../../dapr/components --config ../../dapr/config/config.yaml -- npm run dev:service",
+    "dev": "npm run dapr:start",
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "test": "cross-env NODE_ENV=test jest",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
@@ -17,10 +17,8 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "clean": "rimraf dist coverage",
-    "migrate": "cross-env ts-node ./node_modules/typeorm/cli.js migration:run",
-    "migrate:revert": "cross-env ts-node ./node_modules/typeorm/cli.js migration:revert",
-    "migrate:create": "cross-env ts-node ./node_modules/typeorm/cli.js migration:create",
-    "migrate:generate": "cross-env ts-node ./node_modules/typeorm/cli.js migration:generate",
+    "db:migrate": "cross-env NODE_ENV=development DEBUG=typeorm:* node --trace-warnings --loader ts-node/esm --experimental-specifier-resolution=node scripts/migrate.ts",
+    "db:migrate:revert": "cross-env NODE_ENV=development ts-node --require ts-node/register/transpile-only ./node_modules/typeorm/cli.js migration:revert",
     "typeorm": "cross-env ts-node ./node_modules/typeorm/cli.js"
   },
   "dependencies": {
@@ -54,7 +52,8 @@
     "rimraf": "^5.0.5",
     "ts-jest": "^29.1.2",
     "jest": "^29.7.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0"
   },
   "engines": {
     "node": ">=22.0.0",

@@ -19,6 +19,14 @@ export type ConsentStatus =
   | 'approved'
   | 'denied';
 
+export interface ErrorResponse {
+  error: {
+    code: string;
+    message: string;
+    details?: unknown;
+  };
+}
+
 export interface WorkflowQuery {
   page?: number;
   limit?: number;
@@ -76,4 +84,11 @@ export interface WorkflowResponse {
   last_accessed_by?: string;
   last_executed_by?: string;
   last_accessed_at?: Date;
+}
+
+export interface WorkflowListResponse {
+  items: WorkflowResponse[];
+  total: number;
+  page: number;
+  limit: number;
 }

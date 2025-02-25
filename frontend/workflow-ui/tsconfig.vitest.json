@@ -5,28 +5,36 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "types": [
+      "node",
       "vite/client",
       "vitest",
       "vitest/globals",
-      "@testing-library/jest-dom",
-      "node"
-    ]
+      "@testing-library/jest-dom"
+    ],
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "references": [
     { "path": "./tsconfig.node.json" }
   ],
-  "files": [
+  "include": [
     "vite.config.ts",
     "vitest.config.ts",
-    "src/test/setup.ts"
-  ],
-  "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.d.ts",
     "src/test/**/*.ts",
     "src/test/**/*.tsx"
+  ],
+  "files": [
+    "src/types/test-config.d.ts"
   ],
   "exclude": [
     "node_modules",

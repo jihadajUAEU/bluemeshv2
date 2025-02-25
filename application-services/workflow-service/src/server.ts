@@ -8,15 +8,21 @@ import { EntityNotFoundError } from 'typeorm';
 import { initializeDatabase } from './config/data-source.js';
 import { workflowRouter } from './controllers/workflow.controller.js';
 import type { ErrorResponse } from './types/api.js';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-// Load environment variables
-config({ path: '.env.development' });
+// Get directory path for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load environment variables from .env file in the project root
+config({ path: join(__dirname, '../../.env') });
 
 const app = express();
 const port = process.env.PORT || 3001;
 const daprHost = process.env.DAPR_HOST || 'localhost';
-const daprPort = process.env.DAPR_HTTP_PORT || '3500';
-const daprGrpcPort = process.env.DAPR_GRPC_PORT || '50001';
+const daprPort = process.env.DAPR_HTTP_PORT || '3502';
+const daprGrpcPort = process.env.DAPR_GRPC_PORT || '50002';
 
 // Initialize Dapr client and server
 const daprClient = new DaprClient({ daprHost, daprPort: daprGrpcPort });
@@ -67,16 +73,16 @@ const startServer = async () => {
     // Initialize database connection
     await initializeDatabase();
 
-    // Start Dapr server
-    await daprServer.start();
-    console.log('Dapr server started');
-
     // Start Express server
     app.listen(port, () => {
       console.log(`Workflow service listening on port ${port}`);
       console.log(`Environment: ${process.env.NODE_ENV}`);
       console.log(`Dapr client configured with host: ${daprHost}, port: ${daprPort}`);
     });
+
+    // Start Dapr server
+    await daprServer.start();
+    console.log('Dapr server started');
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
