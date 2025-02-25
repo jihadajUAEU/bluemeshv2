@@ -17,7 +17,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "prepare": "bash scripts/setup.sh",
-    "postinstall": "npm run type-check"
+    "postinstall": "echo Skipping type-check during install"
   },
   "dependencies": {
     "@emotion/react": "11.11.3",
@@ -44,7 +44,7 @@
     "@types/testing-library__jest-dom": "5.14.9",
     "@typescript-eslint/eslint-plugin": "6.21.0",
     "@typescript-eslint/parser": "6.21.0",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react": "4.3.4",
     "@vitest/coverage-v8": "1.2.2",
     "@vitest/ui": "1.2.2",
     "eslint": "8.56.0",

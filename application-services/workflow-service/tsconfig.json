@@ -15,7 +15,11 @@
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "noEmit": false
   },
   "ts-node": {
     "esm": true,

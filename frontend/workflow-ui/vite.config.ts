@@ -1,10 +1,22 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { createHtmlPlugin } from 'vite-plugin-html';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  base: '/',
+  plugins: [
+    react(),
+    createHtmlPlugin({
+      minify: true,
+      inject: {
+        data: {
+          title: 'Workflow UI'
+        }
+      }
+    })
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -24,6 +36,25 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
+      },
+    },
+    strictPort: true,
+    hmr: {
+      port: 5173,
+    },
+    // Handle SPA routing
+    fs: {
+      strict: false,
+    },
+  },
+  preview: {
+    port: 5173,
+    strictPort: true,
+    // Handle SPA routing in preview mode
+    proxy: {
+      '/': {
+        target: 'http://localhost:5173',
+        rewrite: (path) => '/index.html',
       },
     },
   },

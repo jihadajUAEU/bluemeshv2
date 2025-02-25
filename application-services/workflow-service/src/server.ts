@@ -19,23 +19,19 @@ const __dirname = dirname(__filename);
 config({ path: join(__dirname, '../../.env') });
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.APP_PORT || 3001;
 const daprHost = process.env.DAPR_HOST || 'localhost';
 const daprPort = process.env.DAPR_HTTP_PORT || '3502';
 const daprGrpcPort = process.env.DAPR_GRPC_PORT || '50002';
 
-// Initialize Dapr client and server
-const daprClient = new DaprClient({ daprHost, daprPort: daprGrpcPort });
-const daprServer = new DaprServer({ 
-  serverHost: daprHost, 
-  serverPort: port.toString(), 
-  clientOptions: { daprHost, daprPort: daprGrpcPort }
-});
-
 // Middleware
 app.use(json());
 app.use(urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(helmet());
 
 // Routes
@@ -80,28 +76,13 @@ const startServer = async () => {
       console.log(`Dapr client configured with host: ${daprHost}, port: ${daprPort}`);
     });
 
-    // Start Dapr server
-    await daprServer.start();
-    console.log('Dapr server started');
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
   }
 };
 
-// Handle graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM signal received. Shutting down gracefully...');
-  try {
-    await daprServer.stop();
-    process.exit(0);
-  } catch (error) {
-    console.error('Error during shutdown:', error);
-    process.exit(1);
-  }
-});
-
 startServer().catch(console.error);
 
 // Export for testing purposes
-export { app, daprClient, daprServer };
+export { app };

@@ -7,7 +7,7 @@ import {
   OneToMany,
   Index
 } from 'typeorm';
-import { 
+import type { 
   WorkflowStatus,
   WorkflowExecutionStatus,
   DataClassification,

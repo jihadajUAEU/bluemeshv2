@@ -275,12 +275,12 @@ export class WorkflowService {
           }
         }
       );
-    } catch (error) {
+    } catch (error: any) {
       // Update workflow status to failed
       await this.updateExecutionStatus({
         workflow_id: id,
         status: 'failed',
-        message: `Failed to start execution: ${error.message}`
+        message: `Failed to start execution: ${error?.message || 'Unknown error'}`
       });
       throw error;
     }

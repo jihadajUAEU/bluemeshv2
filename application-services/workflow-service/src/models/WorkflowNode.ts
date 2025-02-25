@@ -7,8 +7,8 @@ import {
   ManyToOne,
   JoinColumn
 } from 'typeorm';
-import { Workflow } from './Workflow';
-import type { NodeConfig, Position } from '../types/models';
+import { Workflow } from './Workflow.js';
+import type { NodeConfig, Position } from '../types/models.js';
 
 @Entity('workflow_nodes')
 export class WorkflowNode {

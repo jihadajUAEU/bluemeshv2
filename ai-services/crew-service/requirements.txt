@@ -4,7 +4,6 @@ python-dotenv
 pydantic
 httpx # Updated to resolve dependency conflicts <button class="citation-flag" data-index="1">
 crewai==0.102.0
-langchain
 openai
 # Dapr
 dapr-ext-fastapi
@@ -44,3 +43,4 @@ passlib[bcrypt]
 # Additional dependencies
 chromadb # Requires httpx>=0.27.0 <button class="citation-flag" data-index="1">
 litellm  # Requires httpx<0.28.0 and >=0.23.0 <button class="citation-flag" data-index="1">
+langchain_community

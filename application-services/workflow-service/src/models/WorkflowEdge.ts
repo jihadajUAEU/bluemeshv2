@@ -7,9 +7,9 @@ import {
   ManyToOne,
   JoinColumn
 } from 'typeorm';
-import { Workflow } from './Workflow';
-import { WorkflowNode } from './WorkflowNode';
-import type { EdgeConfig } from '../types/models';
+import { Workflow } from './Workflow.js';
+import { WorkflowNode } from './WorkflowNode.js';
+import type { EdgeConfig } from '../types/models.js';
 
 @Entity('workflow_edges')
 export class WorkflowEdge {
