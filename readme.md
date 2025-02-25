@@ -32,6 +32,61 @@ cd workflow-platform
 cp .env.development .env
 # Edit .env and set your OpenAI API key and other configurations
 ```
+# Database Configuration
+POSTGRES_USER=dbuser
+POSTGRES_PASSWORD=dbpassword
+POSTGRES_DB=workflow_automation
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5433
+
+# Redis Configuration
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=redispassword
+
+# Keycloak Configuration
+KEYCLOAK_URL=http://localhost:8080
+KEYCLOAK_REALM=workflow-platform
+KEYCLOAK_CLIENT_ID=workflow-client
+KEYCLOAK_ADMIN=admin
+KEYCLOAK_ADMIN_PASSWORD=admin
+
+# Kong Configuration
+KONG_ADMIN_URL=http://localhost:8001
+KONG_PROXY_URL=http://localhost:8000
+
+# Dapr Configuration
+DAPR_HTTP_PORT=3500
+DAPR_GRPC_PORT=50001
+
+# Application Configuration
+NODE_ENV=development
+PORT=3001
+LOG_LEVEL=debug
+
+# Security
+JWT_SECRET=your-secret-key-here
+ENCRYPTION_KEY=your-encryption-key-here
+
+# AI Service Configuration
+OPENAI_API_KEY=your-openai-api-key-here
+AI_SERVICE_URL=http://localhost:9000
+
+# Compliance
+DATA_RETENTION_DAYS=30
+DEFAULT_DATA_REGION=us-east
+ENABLE_AUDIT_LOGGING=true
+ENABLE_DATA_ENCRYPTION=true
+
+# Feature Flags
+ENABLE_REALTIME_UPDATES=true
+ENABLE_AI_CAPABILITIES=true
+ENABLE_ADVANCED_WORKFLOW=true
+
+# Monitoring
+ENABLE_METRICS=true
+ENABLE_TRACING=true
+ZIPKIN_ENDPOINT=http://localhost:9411
 
 3. Run the setup script:
 ```bash
