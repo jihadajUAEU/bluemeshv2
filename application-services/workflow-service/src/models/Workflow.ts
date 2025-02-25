@@ -1,88 +1,114 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
+import { 
+  Entity, 
+  Column, 
+  PrimaryGeneratedColumn, 
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany
+  OneToMany,
+  Index
 } from 'typeorm';
-import type { WorkflowNode } from './WorkflowNode';
-import type { WorkflowEdge } from './WorkflowEdge';
-import type {
+import { 
   WorkflowStatus,
+  WorkflowExecutionStatus,
   DataClassification,
-  WorkflowMetadata,
-  ConsentStatus,
-  AccessHistoryEntry
-} from '../types/models';
+  ConsentStatus
+} from '../types/api.js';
+import { WorkflowNode } from './WorkflowNode.js';
+import { WorkflowEdge } from './WorkflowEdge.js';
 
-@Entity('workflows')
+@Entity()
 export class Workflow {
   @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  id: string;
 
   @Column()
-  name!: string;
+  name: string;
 
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ 
-    type: 'varchar',
-    length: 50,
+  @Column({
+    type: 'enum',
+    enum: ['draft', 'active', 'archived', 'deleted'],
     default: 'draft'
   })
-  status!: WorkflowStatus;
-
-  @Column({ type: 'jsonb', nullable: true })
-  metadata?: WorkflowMetadata;
-
-  @Column({ type: 'bytea', nullable: true })
-  encrypted_data?: Buffer;
-
-  @Column({ type: 'bytea', nullable: true })
-  encryption_iv?: Buffer;
+  status: WorkflowStatus;
 
   @Column({
-    type: 'varchar',
-    length: 50,
-    default: 'standard'
+    type: 'enum',
+    enum: ['not_started', 'running', 'completed', 'failed', 'cancelled'],
+    default: 'not_started'
   })
-  data_classification!: DataClassification;
+  execution_status: WorkflowExecutionStatus;
+
+  @Column({ nullable: true })
+  current_phase?: string;
+
+  @Column({ type: 'float', nullable: true })
+  execution_progress?: number;
+
+  @Column({ type: 'text', nullable: true })
+  last_status_message?: string;
 
   @Column({ type: 'jsonb', nullable: true })
+  metadata?: Record<string, unknown>;
+
+  @Column({
+    type: 'enum',
+    enum: ['public', 'internal', 'confidential', 'restricted'],
+    default: 'internal'
+  })
+  data_classification: DataClassification;
+
+  @Column({
+    type: 'enum',
+    enum: ['not_required', 'pending', 'approved', 'denied'],
+    nullable: true
+  })
   consent_status?: ConsentStatus;
 
-  @Column({ type: 'timestamp with time zone', nullable: true })
-  data_retention_date?: Date;
+  @Column()
+  data_region: string;
 
-  @Column({ type: 'uuid' })
-  created_by!: string;
-
-  @Column({ type: 'uuid', nullable: true })
-  last_accessed_by?: string;
-
-  @Column({ type: 'timestamp with time zone', nullable: true })
-  last_accessed_at?: Date;
+  @Column({ default: false })
+  cross_border_allowed: boolean;
 
   @Column({ type: 'jsonb', nullable: true })
-  access_history?: AccessHistoryEntry[];
+  access_history?: Array<{
+    userId: string;
+    action: string;
+    timestamp: Date;
+  }>;
 
-  @Column({ type: 'varchar', length: 50 })
-  data_region!: string;
+  @OneToMany(() => WorkflowNode, node => node.workflow, {
+    cascade: true
+  })
+  nodes: WorkflowNode[];
 
-  @Column({ type: 'boolean', default: false })
-  cross_border_allowed!: boolean;
+  @OneToMany(() => WorkflowEdge, edge => edge.workflow, {
+    cascade: true
+  })
+  edges: WorkflowEdge[];
 
-  @OneToMany(() => WorkflowNode, (node: WorkflowNode) => node.workflow)
-  nodes!: WorkflowNode[];
+  @CreateDateColumn()
+  created_at: Date;
 
-  @OneToMany(() => WorkflowEdge, (edge: WorkflowEdge) => edge.workflow)
-  edges!: WorkflowEdge[];
+  @UpdateDateColumn()
+  updated_at: Date;
 
-  @CreateDateColumn({ type: 'timestamp with time zone' })
-  created_at!: Date;
+  @Column({ nullable: true })
+  last_accessed_at?: Date;
 
-  @UpdateDateColumn({ type: 'timestamp with time zone' })
-  updated_at!: Date;
+  @Column({ nullable: true })
+  last_executed_at?: Date;
+
+  @Index()
+  @Column()
+  created_by: string;
+
+  @Column({ nullable: true })
+  last_accessed_by?: string;
+
+  @Column({ nullable: true })
+  last_executed_by?: string;
 }

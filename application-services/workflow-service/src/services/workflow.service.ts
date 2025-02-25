@@ -6,12 +6,15 @@ import type {
   CreateWorkflowRequest,
   UpdateWorkflowRequest,
   WorkflowQuery,
-  WorkflowResponse
+  WorkflowResponse,
+  WorkflowExecutionStatus,
+  DataClassification
 } from '../types/api.js';
 
 export class WorkflowService {
   private workflowRepository: Repository<Workflow>;
   private readonly CACHE_TTL = 300; // 5 minutes in seconds
+  private readonly AI_SERVICE_NAME = 'crew-service';
 
   constructor() {
     this.workflowRepository = AppDataSource.getRepository(Workflow);
@@ -23,19 +26,71 @@ export class WorkflowService {
       const workflowData = data as { id: string };
       await this.invalidateCache(workflowData.id);
     });
+
+    daprService.subscribeToTopic('workflow.execution', async (data) => {
+      const executionData = data as {
+        workflow_id: string;
+        status: WorkflowExecutionStatus;
+        phase?: string;
+        progress?: number;
+        message?: string;
+      };
+      await this.updateExecutionStatus(executionData);
+    });
   }
 
   private async invalidateCache(workflowId: string): Promise<void> {
     await daprService.deleteState(`workflow-${workflowId}`);
   }
 
-  async create(request: CreateWorkflowRequest, userId: string): Promise<WorkflowResponse> {
-    const workflow = this.workflowRepository.create({
-      ...request,
-      created_by: userId,
-      status: 'draft',
-      data_classification: request.data_classification || 'standard'
+  private async updateExecutionStatus(data: {
+    workflow_id: string;
+    status: WorkflowExecutionStatus;
+    phase?: string;
+    progress?: number;
+    message?: string;
+  }): Promise<void> {
+    const { workflow_id, status, phase, progress, message } = data;
+
+    // Use Repository.update to avoid TypeORM validation
+    await this.workflowRepository
+      .createQueryBuilder()
+      .update(Workflow)
+      .set({
+        execution_status: status,
+        current_phase: phase,
+        execution_progress: progress,
+        last_status_message: message,
+        updated_at: new Date()
+      })
+      .where("id = :id", { id: workflow_id })
+      .execute();
+
+    // Invalidate cache
+    await this.invalidateCache(workflow_id);
+
+    // Publish status update event
+    await daprService.publishEvent('workflow.status.updated', {
+      workflow_id,
+      status,
+      phase,
+      progress,
+      message,
+      timestamp: new Date().toISOString()
     });
+  }
+
+  async create(request: CreateWorkflowRequest, userId: string): Promise<WorkflowResponse> {
+    const workflow = new Workflow();
+    workflow.name = request.name;
+    workflow.description = request.description;
+    workflow.metadata = request.metadata;
+    workflow.data_classification = (request.data_classification || 'internal') as DataClassification;
+    workflow.data_region = request.data_region || 'default';
+    workflow.cross_border_allowed = request.cross_border_allowed || false;
+    workflow.status = 'draft';
+    workflow.execution_status = 'not_started';
+    workflow.created_by = userId;
 
     const saved = await this.workflowRepository.save(workflow);
     
@@ -65,19 +120,21 @@ export class WorkflowService {
       await daprService.saveState(`workflow-${id}`, workflow);
     }
 
-    // Update access history
-    await this.workflowRepository.update(id, {
-      last_accessed_by: userId,
-      last_accessed_at: new Date(),
-      access_history: [
-        ...(workflow.access_history || []),
-        {
+    // Update access history using query builder to avoid validation
+    await this.workflowRepository
+      .createQueryBuilder()
+      .update(Workflow)
+      .set({
+        last_accessed_by: userId,
+        last_accessed_at: new Date(),
+        access_history: () => `array_append(access_history, '${JSON.stringify({
           userId,
           action: 'view',
           timestamp: new Date()
-        }
-      ]
-    });
+        })}'::jsonb)`
+      })
+      .where("id = :id", { id })
+      .execute();
 
     return this.mapToResponse(workflow);
   }
@@ -99,7 +156,7 @@ export class WorkflowService {
     const cached = await daprService.getState<[Workflow[], number]>(cacheKey);
 
     if (cached) {
-      return [cached[0].map(this.mapToResponse), cached[1]];
+      return [cached[0].map(w => this.mapToResponse(w)), cached[1]];
     }
 
     const queryBuilder = this.workflowRepository
@@ -139,13 +196,13 @@ export class WorkflowService {
     // Cache the results
     await daprService.saveState(cacheKey, [workflows, total]);
 
-    return [workflows.map(this.mapToResponse), total];
+    return [workflows.map(w => this.mapToResponse(w)), total];
   }
 
   async update(id: string, request: UpdateWorkflowRequest, userId: string): Promise<WorkflowResponse> {
     const workflow = await this.workflowRepository.findOneOrFail({ where: { id } });
 
-    // Update the workflow
+    // Update the workflow using Object.assign for type safety
     Object.assign(workflow, {
       ...request,
       last_accessed_by: userId,
@@ -180,12 +237,65 @@ export class WorkflowService {
     });
   }
 
+  async executeWorkflow(id: string, userId: string): Promise<void> {
+    const workflow = await this.workflowRepository.findOneOrFail({
+      where: { id },
+      relations: ['nodes', 'edges']
+    });
+
+    // Update workflow status using query builder
+    await this.workflowRepository
+      .createQueryBuilder()
+      .update(Workflow)
+      .set({
+        execution_status: 'running' as WorkflowExecutionStatus,
+        current_phase: 'initializing',
+        execution_progress: 0,
+        last_status_message: 'Starting workflow execution',
+        last_executed_by: userId,
+        last_executed_at: new Date()
+      })
+      .where("id = :id", { id })
+      .execute();
+
+    // Invoke AI service
+    try {
+      await daprService.invokeMethod(
+        this.AI_SERVICE_NAME,
+        `workflows/${id}/execute`,
+        {
+          workflow_data: {
+            id,
+            name: workflow.name,
+            nodes: workflow.nodes,
+            edges: workflow.edges,
+            metadata: workflow.metadata,
+            data_classification: workflow.data_classification,
+            data_region: workflow.data_region
+          }
+        }
+      );
+    } catch (error) {
+      // Update workflow status to failed
+      await this.updateExecutionStatus({
+        workflow_id: id,
+        status: 'failed',
+        message: `Failed to start execution: ${error.message}`
+      });
+      throw error;
+    }
+  }
+
   private mapToResponse(workflow: Workflow): WorkflowResponse {
     return {
       id: workflow.id,
       name: workflow.name,
       description: workflow.description,
       status: workflow.status,
+      execution_status: workflow.execution_status,
+      current_phase: workflow.current_phase,
+      execution_progress: workflow.execution_progress,
+      last_status_message: workflow.last_status_message,
       metadata: workflow.metadata,
       data_classification: workflow.data_classification,
       consent_status: workflow.consent_status,
@@ -193,8 +303,10 @@ export class WorkflowService {
       cross_border_allowed: workflow.cross_border_allowed,
       created_at: workflow.created_at,
       updated_at: workflow.updated_at,
+      last_executed_at: workflow.last_executed_at,
       created_by: workflow.created_by,
       last_accessed_by: workflow.last_accessed_by,
+      last_executed_by: workflow.last_executed_by,
       last_accessed_at: workflow.last_accessed_at
     };
   }

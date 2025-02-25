@@ -1,0 +1,37 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "types": [
+      "vite/client",
+      "vitest",
+      "vitest/globals",
+      "@testing-library/jest-dom",
+      "node"
+    ]
+  },
+  "references": [
+    { "path": "./tsconfig.node.json" }
+  ],
+  "files": [
+    "vite.config.ts",
+    "vitest.config.ts",
+    "src/test/setup.ts"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.d.ts",
+    "src/test/**/*.ts",
+    "src/test/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage"
+  ]
+}
