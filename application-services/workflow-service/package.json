@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --project tsconfig.json && tsc-alias",
-    "dev:service": "cross-env NODE_ENV=development node --no-warnings --loader ts-node/esm --experimental-specifier-resolution=node src/server.ts",
+    "dev:service": "cross-env NODE_ENV=development NODE_OPTIONS=\"--no-warnings --experimental-vm-modules\" node --loader ts-node/esm src/server.ts",
     "dapr:start": "cross-env dapr run --app-id workflow-service --app-port 3001 --dapr-http-port 3502 --dapr-grpc-port 50002 --resources-path ../../dapr/components --config ../../dapr/config/config.yaml -- npm run dev:service",
     "dev:docker": "cross-env NODE_ENV=development APP_PORT=3001 npm run dev:service",
     "dev": "npm run dev:docker",
@@ -18,7 +18,7 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "clean": "rimraf dist coverage",
-    "db:migrate": "cross-env NODE_ENV=development DEBUG=typeorm:* node --trace-warnings --loader ts-node/esm --experimental-specifier-resolution=node scripts/migrate.ts",
+    "db:migrate": "cross-env NODE_ENV=development DEBUG=typeorm:* node --loader ts-node/esm --experimental-specifier-resolution=node --require tsconfig-paths/register scripts/migrate.ts",
     "db:migrate:revert": "cross-env NODE_ENV=development ts-node --require ts-node/register/transpile-only ./node_modules/typeorm/cli.js migration:revert",
     "typeorm": "cross-env ts-node ./node_modules/typeorm/cli.js"
   },

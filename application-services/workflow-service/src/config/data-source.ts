@@ -1,9 +1,5 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { Workflow } from '../models/Workflow.js';
-import { WorkflowNode } from '../models/WorkflowNode.js';
-import { WorkflowEdge } from '../models/WorkflowEdge.js';
-
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.POSTGRES_HOST || 'localhost',
@@ -13,8 +9,8 @@ export const AppDataSource = new DataSource({
   database: process.env.POSTGRES_DB || 'workflow_automation',
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
-  entities: [Workflow, WorkflowNode, WorkflowEdge],
-  migrations: ['src/migrations/*.ts'],
+  entities: ['dist/models/*.js'],
+  migrations: ['dist/migrations/*.js'],
   subscribers: []
 });
 

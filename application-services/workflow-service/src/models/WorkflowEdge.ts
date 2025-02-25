@@ -7,8 +7,8 @@ import {
   ManyToOne,
   JoinColumn
 } from 'typeorm';
-import { Workflow } from './Workflow.js';
-import { WorkflowNode } from './WorkflowNode.js';
+import type { Workflow } from './Workflow.js';
+import type { WorkflowNode } from './WorkflowNode.js';
 import type { EdgeConfig } from '../types/models.js';
 
 @Entity('workflow_edges')
@@ -28,15 +28,15 @@ export class WorkflowEdge {
   @Column({ type: 'jsonb', nullable: true })
   config?: EdgeConfig;
 
-  @ManyToOne(() => Workflow, (workflow: Workflow) => workflow.edges)
+  @ManyToOne('Workflow', (workflow: Workflow) => workflow.edges)
   @JoinColumn({ name: 'workflow_id' })
   workflow!: Workflow;
 
-  @ManyToOne(() => WorkflowNode)
+  @ManyToOne('WorkflowNode')
   @JoinColumn({ name: 'source_id' })
   source!: WorkflowNode;
 
-  @ManyToOne(() => WorkflowNode)
+  @ManyToOne('WorkflowNode')
   @JoinColumn({ name: 'target_id' })
   target!: WorkflowNode;
 

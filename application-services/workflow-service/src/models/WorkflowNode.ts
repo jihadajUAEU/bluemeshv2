@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn
 } from 'typeorm';
-import { Workflow } from './Workflow.js';
+import type { Workflow } from './Workflow.js';
 import type { NodeConfig, Position } from '../types/models.js';
 
 @Entity('workflow_nodes')
@@ -30,7 +30,7 @@ export class WorkflowNode {
   @Column({ type: 'jsonb', nullable: true })
   position?: Position;
 
-  @ManyToOne(() => Workflow, (workflow: Workflow) => workflow.nodes)
+  @ManyToOne('Workflow', (workflow: Workflow) => workflow.nodes)
   @JoinColumn({ name: 'workflow_id' })
   workflow!: Workflow;
 
