@@ -14,6 +14,7 @@ import ReactFlow, {
   applyEdgeChanges,
   Panel,
   useReactFlow,
+  ReactFlowProvider,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import './WorkflowBuilder.css';
@@ -75,7 +76,7 @@ const Sidebar: React.FC = () => {
   );
 };
 
-const WorkflowBuilder: React.FC = () => {
+const WorkflowBuilderComponent = () => {
   const { id } = useParams();
   const isEditing = !!id;
   const dispatch = useAppDispatch();
@@ -170,6 +171,15 @@ const WorkflowBuilder: React.FC = () => {
         </Box>
       </Box>
     </Box>
+  );
+};
+
+// Wrap with ReactFlowProvider to enable drag and drop functionality
+const WorkflowBuilder: React.FC = () => {
+  return (
+    <ReactFlowProvider>
+      <WorkflowBuilderComponent />
+    </ReactFlowProvider>
   );
 };
 

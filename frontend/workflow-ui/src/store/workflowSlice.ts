@@ -5,6 +5,7 @@ export interface Workflow {
   name: string;
   nodes: any[];  // Will be typed properly when implementing nodes
   edges: any[];  // Will be typed properly when implementing edges
+  status?: 'idle' | 'running' | 'completed' | 'failed';
   createdAt: string;
   updatedAt: string;
 }
@@ -48,5 +49,18 @@ export const {
   setError,
   setSelectedWorkflow,
 } = workflowSlice.actions;
+
+// Selectors
+export const selectWorkflows = (state: { workflow: WorkflowState }) => state.workflow.workflows;
+export const selectCurrentWorkflow = (state: { workflow: WorkflowState }) => state.workflow.selectedWorkflow;
+export const selectWorkflowNodes = (state: { workflow: WorkflowState }) => 
+  state.workflow.selectedWorkflow?.nodes || [];
+export const selectWorkflowEdges = (state: { workflow: WorkflowState }) => 
+  state.workflow.selectedWorkflow?.edges || [];
+export const selectLoading = (state: { workflow: WorkflowState }) => state.workflow.loading;
+export const selectError = (state: { workflow: WorkflowState }) => state.workflow.error;
+export const selectExecutionStatus = (state: { workflow: WorkflowState }) => 
+  state.workflow.selectedWorkflow?.status || 'idle';
+export const selectTotal = (state: { workflow: WorkflowState }) => state.workflow.workflows.length;
 
 export default workflowSlice.reducer;
