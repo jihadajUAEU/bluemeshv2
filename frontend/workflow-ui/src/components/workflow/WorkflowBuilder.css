@@ -1,0 +1,36 @@
+.react-flow__node {
+  cursor: grab;
+}
+
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px #1a192b;
+}
+
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  background-color: #1a192b;
+  border-radius: 50%;
+}
+
+.react-flow__handle-top {
+  top: -4px;
+}
+
+.react-flow__handle-bottom {
+  bottom: -4px;
+}
+
+.react-flow__edge-path {
+  stroke: #1a192b;
+  stroke-width: 2;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #1a88ff;
+}
+
+.react-flow__node-base,
+.react-flow__node-analysis {
+  min-width: 200px;
+}
