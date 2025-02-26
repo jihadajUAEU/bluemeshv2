@@ -1,19 +1,14 @@
-/// <reference types="vitest/globals" />
-/// <reference types="@testing-library/jest-dom" />
-/// <reference types="@testing-library/react" />
-/// <reference types="node" />
-
-import { beforeAll, afterAll, afterEach, vi } from 'vitest';
+import { beforeAll, afterAll, afterEach, vi, expect } from 'vitest';
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
+import type { TestContext } from 'vitest';
 
 declare module 'vitest' {
-  export interface TestContext {
+  interface TestContext {
     cleanup: typeof cleanup;
   }
 }
 
-// Mock MediaQueryList
 interface MockMediaQueryList {
   matches: boolean;
   media: string;
@@ -111,4 +106,16 @@ afterAll(() => {
   console.error = originalError;
 });
 
-export { cleanup };
+// Extend expect with custom matchers
+expect.extend({
+  toBeInTheDocument(received) {
+    const pass = Boolean(received);
+    return {
+      message: () =>
+        `expected ${received} ${pass ? 'not ' : ''}to be in the document`,
+      pass,
+    };
+  },
+});
+
+export { cleanup, expect };

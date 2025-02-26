@@ -2,7 +2,8 @@
   "root": true,
   "env": {
     "browser": true,
-    "es2020": true
+    "es2020": true,
+    "node": true
   },
   "extends": [
     "eslint:recommended",
@@ -16,6 +17,7 @@
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module",
+    "tsconfigRootDir": "./",
     "project": ["./tsconfig.json", "./tsconfig.node.json", "./tsconfig.vitest.json"]
   },
   "plugins": ["react-refresh", "@typescript-eslint", "import"],
@@ -69,6 +71,9 @@
       "typescript": {
         "alwaysTryTypes": true,
         "project": ["./tsconfig.json", "./tsconfig.node.json", "./tsconfig.vitest.json"]
+      },
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
       }
     }
   }

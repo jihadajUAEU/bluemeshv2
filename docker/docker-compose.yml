@@ -93,6 +93,88 @@ services:
       timeout: 5s
       retries: 5
 
+  workflow-service:
+    build:
+      context: ..
+      dockerfile: application-services/workflow-service/Dockerfile
+    container_name: workflow-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: dbpassword
+      POSTGRES_DB: workflow_automation
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  workflow-service-dapr:
+    image: "daprio/daprd:edge"
+    command: [
+      "./daprd",
+      "--app-id", "workflow-service",
+      "--app-port", "3001",
+      "--dapr-http-port", "3502",
+      "--dapr-grpc-port", "50002",
+      "--resources-path", "/dapr/components",
+      "--config", "/dapr/config/config.yaml"
+    ]
+    volumes:
+      - "../dapr/components:/dapr/components"
+      - "../dapr/config:/dapr/config"
+    depends_on:
+      - workflow-service
+    network_mode: "service:workflow-service"
+
+  crew-service:
+    build:
+      context: ../ai-services/crew-service
+      dockerfile: Dockerfile
+    container_name: crew-service
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      PYTHONUNBUFFERED: 1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  crew-service-dapr:
+    image: "daprio/daprd:edge"
+    command: [
+      "./daprd",
+      "--app-id", "crew-service",
+      "--app-port", "8000",
+      "--dapr-http-port", "3503",
+      "--dapr-grpc-port", "50003",
+      "--resources-path", "/dapr/components",
+      "--config", "/dapr/config/config.yaml"
+    ]
+    volumes:
+      - "../dapr/components:/dapr/components"
+      - "../dapr/config:/dapr/config"
+    depends_on:
+      - crew-service
+    network_mode: "service:crew-service"
+
 volumes:
   postgres_data:
   redis_data:

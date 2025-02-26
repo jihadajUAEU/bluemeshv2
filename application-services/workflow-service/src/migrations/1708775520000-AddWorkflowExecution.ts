@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner, TableColumn } from "typeorm";
 
 export class AddWorkflowExecution1708775520000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.addColumns("workflow", [
+        await queryRunner.addColumns("workflows", [
             new TableColumn({
                 name: "execution_status",
                 type: "enum",
@@ -39,7 +39,7 @@ export class AddWorkflowExecution1708775520000 implements MigrationInterface {
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropColumns("workflow", [
+        await queryRunner.dropColumns("workflows", [
             "execution_status",
             "current_phase",
             "execution_progress",

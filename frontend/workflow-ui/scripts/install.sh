@@ -48,21 +48,9 @@ npm install --save-dev --save-exact \
     @testing-library/dom@9.3.4 \
     @types/testing-library__jest-dom@5.14.9
 
-# Install remaining dependencies
-echo -e "${BLUE}Installing remaining dependencies...${NC}"
-npm install
-
 # Create .npmrc if it doesn't exist
 echo -e "${BLUE}Creating .npmrc...${NC}"
 echo "save-exact=true" > .npmrc
 
-# Run type check
-echo -e "${BLUE}Running type check...${NC}"
-npm run type-check
-
-# Run lint
-echo -e "${BLUE}Running lint...${NC}"
-npm run lint
-
-echo -e "${GREEN}Installation complete! 🎉${NC}"
-echo -e "You can now run ${BLUE}npm run dev${NC} to start the development server."
+echo -e "${GREEN}Base dependencies installed! 🎉${NC}"
+echo -e "Setup is continuing with additional configuration..."

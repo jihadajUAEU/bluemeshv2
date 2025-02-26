@@ -2,60 +2,40 @@
 /// <reference types="vitest/globals" />
 /// <reference types="@testing-library/jest-dom" />
 
-// Augment the global NodeJS namespace
-declare namespace NodeJS {
-  interface ProcessEnv {
-    NODE_ENV: 'development' | 'production' | 'test';
-    VITE_API_URL: string;
-    VITE_KEYCLOAK_URL: string;
-    VITE_KEYCLOAK_REALM: string;
-    VITE_KEYCLOAK_CLIENT_ID: string;
-    [key: string]: string | undefined;
-  }
+declare module '*.svg' {
+  import * as React from 'react';
+  export const ReactComponent: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+  export default ReactComponent;
 }
 
-// Extend the Window interface
-interface Window {
-  ResizeObserver: typeof ResizeObserver;
-  IntersectionObserver: typeof IntersectionObserver;
-  matchMedia: (query: string) => MediaQueryList;
+declare module '*.png' {
+  const value: string;
+  export default value;
 }
 
-// Vite environment variables type augmentation
+declare module '*.jpg' {
+  const value: string;
+  export default value;
+}
+
+declare module '*.jpeg' {
+  const value: string;
+  export default value;
+}
+
 interface ImportMetaEnv {
-  readonly VITE_API_URL: string;
-  readonly VITE_KEYCLOAK_URL: string;
-  readonly VITE_KEYCLOAK_REALM: string;
-  readonly VITE_KEYCLOAK_CLIENT_ID: string;
+  readonly VITE_APP_API_URL: string;
+  // Add other env variables here
 }
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-// Testing Library types augmentation
-declare namespace jest {
-  interface Matchers<R> {
-    toBeInTheDocument(): R;
-    toHaveAttribute(attr: string, value?: string): R;
-    toHaveClass(className: string): R;
-    toHaveStyle(css: Record<string, any>): R;
-    toHaveTextContent(text: string | RegExp): R;
-    toBeVisible(): R;
-    toBeDisabled(): R;
-    toHaveValue(value: string | number | string[]): R;
-  }
-}
-
-// Vitest types augmentation
-declare namespace Vi {
-  interface Assertion extends jest.Matchers<void> {}
-  interface AsymmetricMatchersContaining extends jest.Matchers<void> {}
-}
-
-// React Testing Library types augmentation
-declare namespace Testing {
-  interface RenderOptions {
-    wrapper?: React.ComponentType;
+// Global test types
+declare global {
+  namespace Vi {
+    interface Assertion extends jest.Matchers<any, any> {}
+    interface AsymmetricMatchersContaining extends jest.Matchers<any, any> {}
   }
 }
